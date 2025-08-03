@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <title>Recent Probe Go/No-Go Task & Response Inhibition Task</title>
+    <style>
+        body {
+            background-color: rgb(220,220,220);
+            color: black;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            font-size: 48px;
+            margin: 0; /* besser margin 0, damit keine Verschiebung */
+            height: 100vh; /* ganze Bildschirmhöhe */
+            overflow: hidden; /* kein Scrollen */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #stimulus {
+            white-space: pre;
+            position: fixed;       /* Fixiert am Viewport */
+            top: 50%;              /* Vertikal mittig */
+            left: 50%;             /* Horizontal mittig */
+            transform: translate(-50%, -50%); /* Genau zentrieren */
+            user-select: none;     /* Verhindert Markieren */
+            font-size: 48px;
+        }
+        #download-btn {
+            font-size: 24px;
+            display: none;
+            margin-top: 30px;
+            position: fixed;
+            top: 60%; /* damit er unter dem Text liegt */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+        canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      display: none;
+    }
+    </style>
+</head>
+<body>
+    <div id="stimulus">Loading...</div>
+    <button id="download-btn">Download Data</button>
+    <script src="recentprobe-nogo.js"></script>
+    <script src="response inhibition task.js"></script>
+</body>
+</html>
