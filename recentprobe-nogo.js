@@ -134,7 +134,7 @@ function nextTrial() {
 }
 
 function showBreakScreen() {
-    stimulusDiv.style.fontSize = "48px";
+    stimulusDiv.style.fontSize = "20px";
     stimulusDiv.innerHTML = `Block ${currentBlock} ist abgeschlossen.<br><br>
         Wenn Sie möchten, können Sie eine kurze Pause machen.<br><br>
         Wenn Sie bereit sind, weiter zu machen, drücken Sie eine beliebige Taste, um mit Block ${currentBlock + 1} fortzufahren.`;
@@ -144,6 +144,7 @@ function showBreakScreen() {
         currentBlock++;
         currentTrial = 0;
         shuffle(allTrialConditions);
+        stimulusDiv.style.fontSize = "48px";
         runTrial();
     });
 }
@@ -344,3 +345,4 @@ function secondExpStartHandler(e) {
         startSecondExperiment();
 
 }
+
