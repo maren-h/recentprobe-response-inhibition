@@ -24,6 +24,15 @@ let responseGiven = false;
 const stimulusDiv = document.getElementById("stimulus");
 const downloadBtn = document.getElementById("download-btn");
 
+// === Einheitliche Textgrößen zentral festlegen ===
+const STIMULUS_PX = 48;  // Größe für Trials (wie im ersten Durchgang)
+const UI_TEXT_PX  = 20;  // Größe für Instruktionen/Break-Screens
+
+function setStimulusTextSize(px) {
+  stimulusDiv.style.fontSize = px + "px";
+  stimulusDiv.style.lineHeight = "1";
+}
+
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -134,7 +143,7 @@ function nextTrial() {
 }
 
 function showBreakScreen() {
-    stimulusDiv.style.fontSize = "20px";
+    setStimulusTextSize(UI_TEXT_PX);
     stimulusDiv.innerHTML = `Block ${currentBlock} ist abgeschlossen.<br><br>
         Wenn Sie möchten, können Sie eine kurze Pause machen.<br><br>
         Wenn Sie bereit sind, weiter zu machen, drücken Sie eine beliebige Taste, um mit Block ${currentBlock + 1} fortzufahren.`;
@@ -144,11 +153,10 @@ function showBreakScreen() {
         currentBlock++;
         currentTrial = 0;
         shuffle(allTrialConditions);
-        stimulusDiv.style.fontSize = "48px";
+        setStimulusTextSize(STIMULUS_PX);
         runTrial();
     });
 }
-
 
 function runTrial() {
     const trialInfo = allTrialConditions[currentTrial];
@@ -161,18 +169,18 @@ function runTrial() {
     } else {
         switch (trialInfo.condition) {
            case "match-recent":
-    if (memoryHistory.length > 0) {
-        const lastSet = memoryHistory[memoryHistory.length - 1];
-        const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
-        memorySet = pickRandomLetters(["X", shared], 5);
-        memorySet.push(shared);
-        shuffle(memorySet);
-        probe = shared;
-    } else {
-        memorySet = pickRandomLetters(["X"], 6);
-        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
-    }
-    break;
+                if (memoryHistory.length > 0) {
+                    const lastSet = memoryHistory[memoryHistory.length - 1];
+                    const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
+                    memorySet = pickRandomLetters(["X", shared], 5);
+                    memorySet.push(shared);
+                    shuffle(memorySet);
+                    probe = shared;
+                } else {
+                    memorySet = pickRandomLetters(["X"], 6);
+                    probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+                }
+                break;
 
             case "match-nonrecent":
                 const recentMN = memoryHistory.slice(-3).flat();
@@ -230,7 +238,7 @@ function runTrial() {
         }
     }
 
-    // Sicherheits-Fallback: Falls probe oder memorySet noch immer fehlen
+    // Sicherheits-Fallback
     if (!memorySet) {
         console.warn("memorySet war leer – Default gezogen");
         memorySet = pickRandomLetters(["X"], 6);
@@ -246,6 +254,9 @@ function runTrial() {
 
     console.log("Trial:", currentTrial, "MemorySet:", memorySet, "Probe:", probe);
 
+    // Trials starten IMMER mit fester Stimulusgröße
+    setStimulusTextSize(STIMULUS_PX);
+
     displayFixation(1500, () => {
         displayMemorySet(memorySet, 2000, () => {
             displayFixation(3000, () => {
@@ -256,9 +267,10 @@ function runTrial() {
 }
 
 function endExperiment() {
+    setStimulusTextSize(UI_TEXT_PX);
     stimulusDiv.innerHTML = "Experiment 1 ist nun beendet! <br><br> Sie können nun eine kurze Pause machen, bevor Sie mit Experiment 2 beginnen. <br><br> Wenn Sie bereit sind, drücken Sie eine beliebige Taste, um mit den Instruktionen für Experiment 2 zu beginnen.";
     downloadCSV();
-document.addEventListener("keydown", function secondExpIntroHandler(e) {
+    document.addEventListener("keydown", function secondExpIntroHandler(e) {
         document.removeEventListener("keydown", secondExpIntroHandler);
         startSecondExperimentInstructions();
     });
@@ -276,16 +288,16 @@ function downloadCSV() {
     a.download = "experiment1_data.csv";
     a.click();
     URL.revokeObjectURL(url);
-  setTimeout(() => {
-    startSecondExperiment(); 
-  }, 1000);
+    setTimeout(() => {
+      startSecondExperiment(); 
+    }, 1000);
 }
 
 downloadBtn.addEventListener("click", downloadCSV);
 
 // Erste Startfolie: Begrüßung 
 function showWelcomeScreen() {
-    stimulusDiv.style.fontSize = "20px";
+    setStimulusTextSize(UI_TEXT_PX);
     stimulusDiv.innerHTML = `Hallo! Vielen Dank für die Teilnahme an dieser Studie. <br><br>
         Sie werden zwei verschiedene Experimente bearbeiten. <br><br>
         Jedes Experiment umfasst drei Testblöcke. Nach jedem Block können Sie eine kurze Pause machen.<br><br>
@@ -301,6 +313,7 @@ function welcomeHandler(e) {
 
 // Zweite Startfolie: Instruktionen Experiment 1
 function showInstructions() {
+    setStimulusTextSize(UI_TEXT_PX);
     stimulusDiv.innerHTML = `Experiment 1 <br><br>
         Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz in der Mitte des Bildschirms. Bitte schauen Sie darauf.<br><br>
         Anschließend erscheinen sechs Buchstaben, merken Sie sich diese so gut wie möglich.<br><br>
@@ -317,7 +330,7 @@ function showInstructions() {
 
 function instructionHandler(e) {
     document.removeEventListener("keydown", instructionHandler);
-    stimulusDiv.style.fontSize = "48px";
+    setStimulusTextSize(STIMULUS_PX);
     runTrial();
 }
 
@@ -326,10 +339,10 @@ showWelcomeScreen();
 
 // Experiment 2
 function startSecondExperimentInstructions() {
-    downloadBtn.style.display = "none"; // optional: versteckt den Button wieder
-     stimulusDiv.style.fontSize = "20px";
+    downloadBtn.style.display = "none";
+    setStimulusTextSize(UI_TEXT_PX);
     stimulusDiv.innerHTML = `Experiment 2<br><br>
-    Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz innerhalb einer Ellipse.Bitte schauen Sie darauf.<br><br>
+    Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz innerhalb einer Ellipse. Bitte schauen Sie darauf.<br><br>
     Als nächstes erscheint rechts oder links von dem Fixationskreuz ein Pfeil.
     Reagieren Sie mit den Pfeiltasten, auf die Richtung, in die der Pfeil zeigt. <br><br>
     In manchen Durchgängen erscheint die Ellipse in Blau. Dann dürfen Sie keine Taste drücken. <br><br>
@@ -340,9 +353,7 @@ function startSecondExperimentInstructions() {
 }
 
 function secondExpStartHandler(e) {
-        document.removeEventListener("keydown", secondExpStartHandler);
-        stimulusDiv.style.display = "none";    
-        startSecondExperiment();
-
+    document.removeEventListener("keydown", secondExpStartHandler);
+    stimulusDiv.style.display = "none";
+    startSecondExperiment();
 }
-
