@@ -1,7 +1,16 @@
 let fixationText = '+';
 let arrowSymbol = { left: '←', right: '→' };
-let arrowOffset = 100; // horizontal distance from center
 
+// === Sichtbare Canvas-Größe KONSTANT halten ===
+const CANVAS_CSS_W = 600;   // gewünschte sichtbare Breite (px)
+const CANVAS_CSS_H = 600;   // gewünschte sichtbare Höhe (px)
+
+// === Stimulusgrößen wie in Exp. 1 (48 px) ===
+const FIXATION_PX = 48;     // Fixationskreuz
+const ARROW_PX    = 48;     // Pfeil
+let arrowOffset = 100;      // horizontaler Versatz (px) vom Zentrum
+
+// Ellipse (kannst du bei Bedarf relativ machen)
 let ellipseW = 400;
 let ellipseH = 200;
 
@@ -30,14 +39,37 @@ const fixationDuration = 0.5;
 const stimulusDuration = 1.0;
 let ellipseShouldBeBlue = false;
 
+// Referenz auf das p5-Canvas (für show/hide)
+let p5Canvas = null;
+
 function startSecondExperiment() {
   currentSet = 0;
   fullData = [];
   state = 'ISI';
+
+  // Canvas erst jetzt einblenden (HTML/CSS startet mit display:none)
+  if (p5Canvas) {
+    p5Canvas.elt.style.display = 'block';
+  }
+
+  // Erste ISI initialisieren
+  setTrialIndex = 0;
+  trialList = generateTrials();
+  currentTrial = trialList[setTrialIndex];
+  isiDuration = Math.max(0.2, randomGaussian(1.5, 0.372));
+  trialStartTime = millis();
+  responded = false;
+  stopPresented = false;
+  ellipseShouldBeBlue = false;
 }
 
 function setup() {
-  createCanvas(800, 600);
+  // Canvas erstellen und sichtbare (!) CSS-Größe fixieren
+  p5Canvas = createCanvas(CANVAS_CSS_W, CANVAS_CSS_H);
+  p5Canvas.elt.style.width  = CANVAS_CSS_W + "px";
+  p5Canvas.elt.style.height = CANVAS_CSS_H + "px";
+  p5Canvas.elt.style.display = 'none'; // bleibt zunächst versteckt bis Exp. 2 startet
+
   textAlign(LEFT, TOP);
   textWrap(WORD);
   textLeading(30);
@@ -102,7 +134,7 @@ function startSet() {
   trialList = generateTrials();
   setTrialIndex = 0;
   currentTrial = trialList[setTrialIndex];
-  isiDuration = max(0.2, randomGaussian(1.5, 0.372));
+  isiDuration = Math.max(0.2, randomGaussian(1.5, 0.372));
   state = 'ISI';
   trialStartTime = millis();
   responded = false;
@@ -170,7 +202,7 @@ function draw() {
         }
       } else {
         currentTrial = trialList[setTrialIndex];
-        isiDuration = max(0.2, randomGaussian(1.5, 0.372));
+        isiDuration = Math.max(0.2, randomGaussian(1.5, 0.372));
         state = 'ISI';
         trialStartTime = millis();
         responded = false;
@@ -181,6 +213,18 @@ function draw() {
   } else if (state === 'end') {
     drawEndScreen();
   }
+}
+
+function drawIntro() {
+  background(0);
+  textSize(18);
+  textAlign(LEFT, TOP);
+  textWrap(WORD);
+  const margin = 50;
+  const wrap = width - 2 * margin;
+  const textLines = `Experiment 2<br><br>
+  Drücken Sie eine beliebige Taste, um zu starten.`;
+  text(textLines, margin, 150, wrap);
 }
 
 function drawBreakScreen() {
@@ -209,7 +253,7 @@ function drawEndScreen() {
 }
 
 function drawFixation() {
-  textSize(40);
+  textSize(FIXATION_PX);
   fill(255);
   noStroke();
   textAlign(CENTER, CENTER);
@@ -224,7 +268,7 @@ function drawEllipse(colorName) {
 }
 
 function drawArrow(symbol, xOffset) {
-  textSize(60);
+  textSize(ARROW_PX);
   fill(255);
   noStroke();
   textAlign(CENTER, CENTER);
@@ -236,9 +280,9 @@ function handleResponse() {
 
   if (currentTrial.type === 'stop') {
     if (responded) {
-      ssd = max(minSSD, ssd - ssdStep);
+      ssd = Math.max(minSSD, ssd - ssdStep);
     } else {
-      ssd = min(maxSSD, ssd + ssdStep);
+      ssd = Math.min(maxSSD, ssd + ssdStep);
     }
   }
 
