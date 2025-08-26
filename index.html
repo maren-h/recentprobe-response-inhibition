@@ -1,54 +1,70 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8" />
-    <title>Recent Probe Go/No-Go Task & Response Inhibition Task</title>
-    <style>
-        body {
-            background-color: rgb(220,220,220);
-            color: black;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            font-size: 48px;
-            margin: 0; /* besser margin 0, damit keine Verschiebung */
-            height: 100vh; /* ganze Bildschirmhöhe */
-            overflow: hidden; /* kein Scrollen */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #stimulus {
-            white-space: pre;
-            position: fixed;       /* Fixiert am Viewport */
-            top: 50%;              /* Vertikal mittig */
-            left: 50%;             /* Horizontal mittig */
-            transform: translate(-50%, -50%); /* Genau zentrieren */
-            user-select: none;     /* Verhindert Markieren */
-            font-size: 48px;
-        }
-        #download-btn {
-            font-size: 24px;
-            display: none;
-            margin-top: 30px;
-            position: fixed;
-            top: 60%; /* damit er unter dem Text liegt */
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
-        }
-        canvas {
+  <meta charset="UTF-8" />
+  <title>Recent Probe Go/No-Go Task & Response Inhibition Task</title>
+
+  <!-- Fixierter Viewport für stabile Pixel-Skalierung -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: rgb(220,220,220);
+      color: black;
+      font-family: Arial, sans-serif;
+      text-align: center;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Stimulus hat eine stabile Basisgröße; JS stellt bei Trials aktiv auf 48px */
+    #stimulus {
+      white-space: pre;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      user-select: none;
+      font-size: 48px;   /* Basis (Trials), Instruktionsscreens setzen per JS auf 20px */
+      line-height: 1;
+      z-index: 10;
+    }
+
+    #download-btn {
+      font-size: 24px;
+      display: none;
+      margin-top: 30px;
+      position: fixed;
+      top: 60%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    /* Canvas ist anfangs versteckt; Exp. 2 blendet es per JS ein */
+    canvas {
       position: absolute;
       top: 0;
       left: 0;
       z-index: 1;
       display: none;
     }
-    </style>
+  </style>
 </head>
 <body>
-    <div id="stimulus">Loading...</div>
-    <button id="download-btn">Download Data</button>
-    <script src="recentprobe-nogo.js"></script>
-    <script src="response inhibition task.js"></script>
+  <div id="stimulus">Loading...</div>
+  <button id="download-btn">Download Data</button>
+
+  <script src="recentprobe-nogo.js"></script>
+  <script src="response inhibition task.js"></script>
 </body>
 </html>
