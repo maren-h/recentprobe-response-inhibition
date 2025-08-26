@@ -69,4 +69,32 @@
   <script src="response inhibition task.js"></script>
 </body>
 </html>
+<script>
+(function () {
+  const qs = new URLSearchParams(location.search);
+  if (qs.get("exp") !== "2") return; // nur wenn ?exp=2 gesetzt ist
+
+  function ready() {
+    // Exp-2-Funktionen + Canvas vorhanden?
+    return typeof window.startSecondExperiment === "function"
+           && document.querySelector("canvas");
+  }
+
+  function kickOff() {
+    const mode = qs.get("mode"); // 'instr' zeigt Instruktionen, sonst direkt starten
+    if (mode === "instr" && typeof window.startSecondExperimentInstructions === "function") {
+      startSecondExperimentInstructions();
+    } else {
+      const stim = document.getElementById("stimulus");
+      if (stim) stim.style.display = "none";
+      startSecondExperiment();
+    }
+  }
+
+  (function waitLoop(){
+    if (ready()) { kickOff(); }
+    else { setTimeout(waitLoop, 30); }
+  })();
+})();
+</script>
 
