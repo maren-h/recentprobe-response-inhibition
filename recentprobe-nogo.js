@@ -288,9 +288,6 @@ function downloadCSV() {
     a.download = "experiment1_data.csv";
     a.click();
     URL.revokeObjectURL(url);
-    setTimeout(() => {
-      startSecondExperiment(); 
-    }, 1000);
 }
 
 downloadBtn.addEventListener("click", downloadCSV);
@@ -357,4 +354,5 @@ function secondExpStartHandler(e) {
     stimulusDiv.style.display = "none";
     startSecondExperiment();
 }
+
 
