@@ -1,26 +1,28 @@
 let fixationText = '+';
 let arrowSymbol = { left: '←', right: '→' };
 
-// === Sichtbare Canvas-Größe KONSTANT halten ===
-const CANVAS_CSS_W = 600;   // gewünschte sichtbare Breite (px)
-const CANVAS_CSS_H = 600;   // gewünschte sichtbare Höhe (px)
+// Sichtbare Canvas-Größe (kannst du ändern)
+const CANVAS_CSS_W = 600;
+const CANVAS_CSS_H = 600;
 
-// === Stimulusgrößen wie in Exp. 1 (48 px) ===
-const FIXATION_PX = 48;     // Fixationskreuz
-const ARROW_PX    = 48;     // Pfeil
-let arrowOffset = 100;      // horizontaler Versatz (px) vom Zentrum
+// Stimulusgrößen (wie Exp.1: 48px)
+const FIXATION_PX = 48;
+const ARROW_PX    = 48;
+let arrowOffset   = 100;   // in px
 
-// Ellipse (kannst du bei Bedarf relativ machen)
+// Ellipse
 let ellipseW = 400;
 let ellipseH = 200;
 
+// Stop-Signal-Parameter
 let ssd = 0.220;
 const ssdStep = 0.050;
-const minSSD = 0.020;
-const maxSSD = 0.900;
+const minSSD  = 0.020;
+const maxSSD  = 0.900;
 
+// Trial-Setup
 const trialsPerSet = 80;
-const totalSets = 3;
+const totalSets    = 3;
 
 let currentSet = 0;
 let setTrialIndex = 0;
@@ -39,47 +41,71 @@ const fixationDuration = 0.5;
 const stimulusDuration = 1.0;
 let ellipseShouldBeBlue = false;
 
-// Referenz auf das p5-Canvas (für show/hide)
-let p5Canvas = null;
+// Start-Guards / Flags
+let exp2HasStarted = false;       // verhindert Doppelstart
+let revealCanvasRequested = false; // Canvas später sicher anzeigen
+
+
+const nowMs = () => (typeof millis === 'function' ? millis() : performance.now());
+
 
 function startSecondExperiment() {
-  currentSet = 0;
-  fullData = [];
-  state = 'ISI';
+  if (exp2HasStarted) return;
+  exp2HasStarted = true;
+  revealCanvasRequested = true;
 
-  // Canvas einblenden 
-   const cEl = document.querySelector('canvas');
-  if (cEl) cEl.style.display = 'block';
+ 
+  (function bootWhenReady() {
+    const canvasEl = document.querySelector('canvas');
+    const p5Ready  = (typeof randomGaussian === 'function') && (typeof millis === 'function');
+    if (canvasEl && p5Ready) {
+      // Canvas sichtbar machen
+      canvasEl.style.display = 'block';
 
-  // Erste ISI initialisieren
-  setTrialIndex = 0;
-  trialList = generateTrials();
-  currentTrial = trialList[setTrialIndex];
-  isiDuration = Math.max(0.2, randomGaussian(1.5, 0.372));
-  trialStartTime = millis();
-  responded = false;
-  stopPresented = false;
-  ellipseShouldBeBlue = false;
+      // Trials initialisieren
+      currentSet = 0;
+      fullData = [];
+      setTrialIndex = 0;
+      trialList = generateTrials();
+      currentTrial = trialList[setTrialIndex];
+      isiDuration = Math.max(0.2, randomGaussian(1.5, 0.372));
+      state = 'ISI';
+      trialStartTime = nowMs();
+      responded = false;
+      stopPresented = false;
+      ellipseShouldBeBlue = false;
+    } else {
+      setTimeout(bootWhenReady, 30);
+    }
+  })();
 }
 
+// ======= p5-Setup & -Draw =======
 function setup() {
-  // Canvas erstellen und sichtbare (!) CSS-Größe fixieren
-  p5Canvas = createCanvas(CANVAS_CSS_W, CANVAS_CSS_H);
-  p5Canvas.elt.style.width  = CANVAS_CSS_W + "px";
-  p5Canvas.elt.style.height = CANVAS_CSS_H + "px";
-  p5Canvas.elt.style.display = 'none'; // bleibt zunächst versteckt bis Exp. 2 startet
+  const c = createCanvas(CANVAS_CSS_W, CANVAS_CSS_H);
+  // sichtbare CSS-Größe fixieren (Konstanz der optischen Größe)
+  c.elt.style.width  = CANVAS_CSS_W + 'px';
+  c.elt.style.height = CANVAS_CSS_H + 'px';
+
+  // Canvas initial verbergen (index.css setzt display:none); hier vorsichtig handhaben:
+  if (revealCanvasRequested) c.elt.style.display = 'block';
+  else c.elt.style.display = 'none';
 
   textAlign(LEFT, TOP);
   textWrap(WORD);
   textLeading(30);
   frameRate(60);
   fill(255);
-  state = 'intro';
+
+  // Falls Exp.2 schon gestartet wurde, aber Initialisierung noch nicht durch war,
+  // übernimmt die Warteschleife in startSecondExperiment() den Rest.
+  state = exp2HasStarted ? 'ISI' : 'intro';
 }
 
 function keyPressed() {
   if (state === 'intro') {
-    startSet();
+    // Wenn Start bereits aus Exp.1 angestoßen: kein zweiter Start
+    if (!exp2HasStarted) startSet();
   } else if (state === 'break') {
     startSet();
   } else if (state === 'end') {
@@ -88,24 +114,24 @@ function keyPressed() {
     responded = true;
     handleResponse();
     state = 'interTrial';
-    trialStartTime = millis();
+    trialStartTime = nowMs();
   }
 }
 
 function generateTrials() {
   const proportions = {
-    congruent_go: 0.625,
+    congruent_go:   0.625,
     incongruent_go: 0.125,
-    nogo: 0.125,
-    stop: 0.125,
+    nogo:           0.125,
+    stop:           0.125,
   };
 
   let trialList = [];
 
-  let n_congruent = Math.floor(trialsPerSet * proportions.congruent_go);
-  let n_incongruent = Math.floor(trialsPerSet * proportions.incongruent_go);
-  let n_nogo = Math.floor(trialsPerSet * proportions.nogo);
-  let n_stop = trialsPerSet - n_congruent - n_incongruent - n_nogo;
+  const n_congruent   = Math.floor(trialsPerSet * proportions.congruent_go);
+  const n_incongruent = Math.floor(trialsPerSet * proportions.incongruent_go);
+  const n_nogo        = Math.floor(trialsPerSet * proportions.nogo);
+  const n_stop        = trialsPerSet - n_congruent - n_incongruent - n_nogo;
 
   function addTrials(type, count) {
     for (let i = 0; i < count; i++) {
@@ -114,10 +140,10 @@ function generateTrials() {
     }
   }
 
-  addTrials('congruent_go', n_congruent);
+  addTrials('congruent_go',   n_congruent);
   addTrials('incongruent_go', n_incongruent);
-  addTrials('nogo', n_nogo);
-  addTrials('stop', n_stop);
+  addTrials('nogo',           n_nogo);
+  addTrials('stop',           n_stop);
 
   return shuffle(trialList);
 }
@@ -135,7 +161,7 @@ function startSet() {
   currentTrial = trialList[setTrialIndex];
   isiDuration = Math.max(0.2, randomGaussian(1.5, 0.372));
   state = 'ISI';
-  trialStartTime = millis();
+  trialStartTime = nowMs();
   responded = false;
   stopPresented = false;
   ellipseShouldBeBlue = false;
@@ -144,7 +170,7 @@ function startSet() {
 function draw() {
   background(0);
   fill(255);
-  let elapsed = (millis() - trialStartTime) / 1000;
+  let elapsed = (nowMs() - trialStartTime) / 1000;
 
   if (state === 'intro') {
     drawIntro();
@@ -153,14 +179,14 @@ function draw() {
   } else if (state === 'ISI') {
     if (elapsed >= isiDuration) {
       state = 'fixation';
-      trialStartTime = millis();
+      trialStartTime = nowMs();
     }
   } else if (state === 'fixation') {
     drawEllipse('white');
     drawFixation();
     if (elapsed >= fixationDuration) {
       state = 'stimulus';
-      trialStartTime = millis();
+      trialStartTime = nowMs();
     }
   } else if (state === 'stimulus') {
     let t = elapsed;
@@ -188,7 +214,7 @@ function draw() {
     if (t >= stimulusDuration && !responded) {
       handleResponse();
       state = 'interTrial';
-      trialStartTime = millis();
+      trialStartTime = nowMs();
     }
   } else if (state === 'interTrial') {
     if (elapsed >= 0.5) {
@@ -203,7 +229,7 @@ function draw() {
         currentTrial = trialList[setTrialIndex];
         isiDuration = Math.max(0.2, randomGaussian(1.5, 0.372));
         state = 'ISI';
-        trialStartTime = millis();
+        trialStartTime = nowMs();
         responded = false;
         stopPresented = false;
         ellipseShouldBeBlue = false;
@@ -221,8 +247,7 @@ function drawIntro() {
   textWrap(WORD);
   const margin = 50;
   const wrap = width - 2 * margin;
-  const textLines = `Experiment 2<br><br>
-  Drücken Sie eine beliebige Taste, um zu starten.`;
+  const textLines = `Experiment 2\n\nDrücken Sie eine beliebige Taste, um zu starten.`;
   text(textLines, margin, 150, wrap);
 }
 
@@ -233,9 +258,9 @@ function drawBreakScreen() {
   textWrap(WORD);
   const margin = 50;
   const wrap = width - 2 * margin;
-  const textLines = `Sie haben ${currentSet} von ${totalSets} Blöcken abgeschlossen. <br><br>
-  Wenn Sie möchten, können Sie eine kurze Pause machen.<br><br>
-  Wenn Sie bereit sind, weiter zu machen, drücken Sie eine beliebige Taste, um fortzufahren.`;
+  const textLines = `Sie haben ${currentSet} von ${totalSets} Blöcken abgeschlossen.\n\n
+  Wenn Sie möchten, können Sie eine kurze Pause machen.\n\n
+  Wenn Sie bereit sind, drücken Sie eine beliebige Taste, um fortzufahren.`;
   text(textLines, margin, 150, wrap);
 }
 
@@ -246,8 +271,7 @@ function drawEndScreen() {
   textWrap(WORD);
   const margin = 50;
   const wrap = width - 2 * margin;
-  const textLines = `Vielen Dank für Ihre Teilnahme an dieser Studie! <br><br>
-                    Wenden Sie sich nun an die Versuchsleitung.`;
+  const textLines = `Vielen Dank für Ihre Teilnahme an dieser Studie!\n\nWenden Sie sich nun an die Versuchsleitung.`;
   text(textLines, margin, 150, wrap);
 }
 
@@ -278,11 +302,8 @@ function handleResponse() {
   if (!currentTrial) return;
 
   if (currentTrial.type === 'stop') {
-    if (responded) {
-      ssd = Math.max(minSSD, ssd - ssdStep);
-    } else {
-      ssd = Math.min(maxSSD, ssd + ssdStep);
-    }
+    if (responded) ssd = Math.max(minSSD, ssd - ssdStep);
+    else           ssd = Math.min(maxSSD, ssd + ssdStep);
   }
 
   fullData.push({
@@ -321,4 +342,3 @@ function shuffle(array) {
   }
   return array;
 }
-
