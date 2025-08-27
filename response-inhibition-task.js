@@ -47,10 +47,9 @@ function startSecondExperiment() {
   fullData = [];
   state = 'ISI';
 
-  // Canvas erst jetzt einblenden (HTML/CSS startet mit display:none)
-  if (p5Canvas) {
-    p5Canvas.elt.style.display = 'block';
-  }
+  // Canvas einblenden 
+   const cEl = document.querySelector('canvas');
+  if (cEl) cEl.style.display = 'block';
 
   // Erste ISI initialisieren
   setTrialIndex = 0;
@@ -322,3 +321,4 @@ function shuffle(array) {
   }
   return array;
 }
+
