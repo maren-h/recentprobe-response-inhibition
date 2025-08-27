@@ -1,3 +1,5 @@
+(() => {
+  'use strict';
 let fixationText = '+';
 let arrowSymbol = { left: '←', right: '→' };
 
@@ -342,3 +344,9 @@ function shuffle(array) {
   }
   return array;
 }
+
+ window.startSecondExperiment = startSecondExperiment; // wird von Exp 1 aufgerufen
+  window.setup = setup;       // p5 braucht globales setup()
+  window.draw = draw;         // p5 braucht globales draw()
+  window.keyPressed = keyPressed; // p5 ruft globales keyPressed() auf
+})();
