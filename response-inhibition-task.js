@@ -3,10 +3,6 @@
 let fixationText = '+';
 let arrowSymbol = { left: '←', right: '→' };
 
-// Sichtbare Canvas-Größe (kannst du ändern)
-const CANVAS_CSS_W = 600;
-const CANVAS_CSS_H = 600;
-
 // Stimulusgrößen (wie Exp.1: 48px)
 const FIXATION_PX = 48;
 const ARROW_PX    = 48;
@@ -84,12 +80,8 @@ function startSecondExperiment() {
 
 // ======= p5-Setup & -Draw =======
 function setup() {
-  const c = createCanvas(CANVAS_CSS_W, CANVAS_CSS_H);
-  // sichtbare CSS-Größe fixieren (Konstanz der optischen Größe)
-  c.elt.style.width  = CANVAS_CSS_W + 'px';
-  c.elt.style.height = CANVAS_CSS_H + 'px';
+  const c = createCanvas(windowWidth, windowHeight);
 
-  // Canvas initial verbergen (index.css setzt display:none); hier vorsichtig handhaben:
   if (revealCanvasRequested) c.elt.style.display = 'block';
   else c.elt.style.display = 'none';
 
@@ -102,6 +94,10 @@ function setup() {
   // Falls Exp.2 schon gestartet wurde, aber Initialisierung noch nicht durch war,
   // übernimmt die Warteschleife in startSecondExperiment() den Rest.
   state = exp2HasStarted ? 'ISI' : 'intro';
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
 
 function keyPressed() {
@@ -170,7 +166,7 @@ function startSet() {
 }
 
 function draw() {
-  background(0);
+  background(220);
   fill(255);
   let elapsed = (nowMs() - trialStartTime) / 1000;
 
@@ -350,3 +346,4 @@ function shuffle(array) {
   window.draw = draw;         // p5 braucht globales draw()
   window.keyPressed = keyPressed; // p5 ruft globales keyPressed() auf
 })();
+
