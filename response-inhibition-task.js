@@ -166,7 +166,7 @@ function startSet() {
 }
 
 function draw() {
-  background(220);
+  background(0);
   fill(255);
   let elapsed = (nowMs() - trialStartTime) / 1000;
 
@@ -346,4 +346,5 @@ function shuffle(array) {
   window.draw = draw;         // p5 braucht globales draw()
   window.keyPressed = keyPressed; // p5 ruft globales keyPressed() auf
 })();
+
 
