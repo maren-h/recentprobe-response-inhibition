@@ -24,11 +24,11 @@ let responseGiven = false;
 const stimulusDiv = document.getElementById("stimulus");
 const downloadBtn = document.getElementById("download-btn");
 
-// === Einheitliche Textgrößen zentral festlegen ===
+
 const STIMULUS_PX = 48;  // Größe für Trials (wie im ersten Durchgang)
 const UI_TEXT_PX  = 20;  // Größe für Instruktionen/Break-Screens
 
-// === Übungs-Setup ===
+
 const practiceTrials = 10;   // Anzahl Übungstrials
 let inPractice = true;       // wir starten in der Übungsphase
 
@@ -177,8 +177,8 @@ function showBreakScreen() {
 
 function showPracticeEndScreen_Exp1() {
     setStimulusTextSize(UI_TEXT_PX);
-    stimulusDiv.innerHTML = `Super! Die Übung ist beendet.<br><br>
-        <strong>Jetzt startet das eigentliche Experiment.</strong><br><br>
+    stimulusDiv.innerHTML = `Die Übungstrials sind beendet .<br><br>
+        <strong>Jetzt startet das eigentliche Experiment 1.</strong><br><br>
         Reagieren Sie weiterhin so schnell und genau wie möglich.<br><br>
         <em>Drücken Sie eine beliebige Taste, um zu beginnen.</em>`;
     document.addEventListener("keydown", function practiceEndHandler(e) {
@@ -388,3 +388,4 @@ function secondExpStartHandler(e) {
     stimulusDiv.style.display = "none";
     startSecondExperiment();
 }
+
