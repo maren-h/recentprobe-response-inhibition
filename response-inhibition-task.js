@@ -280,8 +280,8 @@ function drawPracticeEndScreen_Exp2() {
   textWrap(WORD);
   const margin = 50;
   const wrap = width - 2 * margin;
-  const textLines = `Die Übungstrials sind beendet.\n\n
-  Jetzt startet das eigentliche Experiment 2.\n\n
+  const textLines = `Die Übungsdurchgänge sind beendet.\n\n
+  Jetzt startet der erste richtige Durchgang von Experiment.\n\n
   Bitte reagieren Sie weiterhin so schnell und genau wie möglich.\n\n
   Drücken Sie eine beliebige Taste, um zu beginnen.`;
   text(textLines, margin, 150, wrap);
@@ -387,3 +387,4 @@ function shuffle(array) {
   window.draw = draw;         // p5 braucht globales draw()
   window.keyPressed = keyPressed; // p5 ruft globales keyPressed() auf
 })();
+
