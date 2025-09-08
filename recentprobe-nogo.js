@@ -24,14 +24,9 @@ let responseGiven = false;
 const stimulusDiv = document.getElementById("stimulus");
 const downloadBtn = document.getElementById("download-btn");
 
-
+// === Einheitliche Textgrößen zentral festlegen ===
 const STIMULUS_PX = 48;  // Größe für Trials (wie im ersten Durchgang)
 const UI_TEXT_PX  = 20;  // Größe für Instruktionen/Break-Screens
-
-
-const practiceTrials = 10;
-let inPractice = true;
-const usedPracticeSets = new Set();
 
 function setStimulusTextSize(px) {
   stimulusDiv.style.fontSize = px + "px";
@@ -50,17 +45,6 @@ function pickRandomLetters(exclude, count) {
     let pool = letters.filter(l => !exclude.includes(l));
     shuffle(pool);
     return pool.slice(0, count);
-}
-
-function poolExcluding(exclusions) {
-  const ex = new Set(exclusions);
-  return letters.filter(l => !ex.has(l));
-}
-
-function sampleK(arr, k) {
-  const a = arr.slice();
-  shuffle(a);
-  return a.slice(0, k);
 }
 
 function getNonRecentLetter(history) {
@@ -112,18 +96,15 @@ function displayProbe(probe) {
             stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
         }
 
-        // Übungsdaten NICHT speichern
-        if (!inPractice) {
-          data.push({
-              trial: currentTrial+1,
-              condition: trial.condition,
-              isNogo: trial.isNogo,
-              probe: probe,
-              response: e.key,
-              correct: correct,
-              rt: rt
-          });
-        }
+        data.push({
+            trial: currentTrial+1,
+            condition: trial.condition,
+            isNogo: trial.isNogo,
+            probe: probe,
+            response: e.key,
+            correct: correct,
+            rt: rt
+        });
 
         setTimeout(nextTrial, 500);
     }
@@ -132,18 +113,15 @@ function displayProbe(probe) {
     responseTimeout = setTimeout(() => {
         document.removeEventListener("keydown", handleResponse);
         if (!responseGiven) {
-            // Übungsdaten NICHT speichern
-            if (!inPractice) {
-              data.push({
-                  trial: currentTrial+1,
-                  condition: trials[currentTrial].condition,
-                  isNogo: trials[currentTrial].isNogo,
-                  probe: probe,
-                  response: "none",
-                  correct: probe === "X",
-                  rt: "none"
-              });
-            }
+            data.push({
+                trial: currentTrial+1,
+                condition: trials[currentTrial].condition,
+                isNogo: trials[currentTrial].isNogo,
+                probe: probe,
+                response: "none",
+                correct: probe === "X",
+                rt: "none"
+            });
             nextTrial();
         }
     }, 2000);
@@ -152,20 +130,13 @@ function displayProbe(probe) {
 function nextTrial() {
     currentTrial++;
 
-    if (inPractice) {
-        if (currentTrial >= practiceTrials) {
-            showPracticeEndScreen_Exp1();
-            return;
+    if (currentTrial >= trialsPerBlock) {
+        if (currentBlock < totalBlocks) {
+            showBreakScreen();
+        } else {
+            endExperiment();
         }
-    } else {
-        if (currentTrial >= trialsPerBlock) {
-            if (currentBlock < totalBlocks) {
-                showBreakScreen();
-            } else {
-                endExperiment();
-            }
-            return;
-        }
+        return;
     }
 
     runTrial();
@@ -187,164 +158,112 @@ function showBreakScreen() {
     });
 }
 
-function showPracticeEndScreen_Exp1() {
-    setStimulusTextSize(UI_TEXT_PX);
-    stimulusDiv.innerHTML = `Die Übungsdurchgänge sind beendet .<br><br>
-        <strong>Jetzt startet der erste richtige Durchgang von Experiment 1.</strong><br><br>
-        Reagieren Sie weiterhin so schnell und genau wie möglich.<br><br>
-        <em>Drücken Sie eine beliebige Taste, um zu beginnen.</em>`;
-    document.addEventListener("keydown", function practiceEndHandler(e) {
-        document.removeEventListener("keydown", practiceEndHandler);
-        inPractice = false;
-        currentTrial = 0;
-        shuffle(allTrialConditions);       // frische Reihenfolge für Test
-        setStimulusTextSize(STIMULUS_PX);
-        runTrial();
-    });
-}
-
 function runTrial() {
-  const trialInfo = allTrialConditions[currentTrial];
-
-  function buildOnce() {
-    let memorySet, probe;
+    const trialInfo = allTrialConditions[currentTrial];
+    let memorySet;
+    let probe;
 
     if (trialInfo.isNogo) {
-      memorySet = pickRandomLetters(["X"], 6);
-      probe = "X";
-      return { memorySet, probe };
+        memorySet = pickRandomLetters(["X"], 6);
+        probe = "X";
+    } else {
+        switch (trialInfo.condition) {
+           case "match-recent":
+                if (memoryHistory.length > 0) {
+                    const lastSet = memoryHistory[memoryHistory.length - 1];
+                    const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
+                    memorySet = pickRandomLetters(["X", shared], 5);
+                    memorySet.push(shared);
+                    shuffle(memorySet);
+                    probe = shared;
+                } else {
+                    memorySet = pickRandomLetters(["X"], 6);
+                    probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+                }
+                break;
+
+            case "match-nonrecent":
+                const recentMN = memoryHistory.slice(-3).flat();
+                const eligibleMN = letters.filter(l => !recentMN.includes(l) && l !== "X");
+                if (eligibleMN.length > 0) {
+                    const probeMN = eligibleMN[Math.floor(Math.random() * eligibleMN.length)];
+                    const baseSet = pickRandomLetters(["X", probeMN], 5);
+                    memorySet = [...baseSet, probeMN];
+                    shuffle(memorySet);
+                    probe = probeMN;
+                } else {
+                    memorySet = pickRandomLetters(["X"], 6);
+                    probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+                }
+                break;
+
+            case "nonmatch-recent":
+                if (memoryHistory.length > 0) {
+                    const lastSet = memoryHistory[memoryHistory.length - 1];
+                    const candidates = lastSet.filter(l => l !== "X");
+                    shuffle(candidates);
+                    let found = false;
+                    for (let i = 0; i < candidates.length; i++) {
+                        const probeCandidate = candidates[i];
+                        const tempSet = pickRandomLetters(["X", probeCandidate], 6);
+                        if (!tempSet.includes(probeCandidate)) {
+                            memorySet = tempSet;
+                            probe = probeCandidate;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        memorySet = pickRandomLetters(["X"], 6);
+                        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+                    }
+                } else {
+                    memorySet = pickRandomLetters(["X"], 6);
+                    probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+                }
+                break;
+
+            case "nonmatch-nonrecent":
+                const recentNMN = memoryHistory.slice(-3).flat();
+                memorySet = pickRandomLetters(["X", ...recentNMN], 6);
+                const probeCandidates = letters.filter(
+                    l => !memorySet.includes(l) && !recentNMN.includes(l) && l !== "X"
+                );
+                if (probeCandidates.length > 0) {
+                    probe = probeCandidates[Math.floor(Math.random() * probeCandidates.length)];
+                } else {
+                    probe = getNonRecentLetter(memoryHistory.concat([memorySet]));
+                }
+                break;
+        }
     }
 
-    const lastSet   = memoryHistory.length ? memoryHistory[memoryHistory.length - 1] : [];
-    const recent3   = memoryHistory.slice(-3).flat();
-
-    switch (trialInfo.condition) {
-      case "match-recent": {
-        if (lastSet.length) {
-          // 1 Buchstabe teilen, Rest NICHT aus dem letzten Set
-          const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
-          let pool = poolExcluding(["X", ...lastSet.filter(l => l !== shared)]);
-          if (pool.length < 5) {
-            // Fallback: nur "X" und shared verbieten
-            pool = poolExcluding(["X", shared]);
-          }
-          const others = sampleK(pool, 5);
-          memorySet = others.concat(shared);
-          shuffle(memorySet);
-          probe = shared;
-        } else {
-          memorySet = pickRandomLetters(["X"], 6);
-          probe = memorySet[Math.floor(Math.random() * memorySet.length)];
-        }
-        break;
-      }
-
-      case "match-nonrecent": {
-        // Probe nicht aus den letzten 3 Sets
-        const eligibleProbe = poolExcluding(["X", ...recent3]);
-        if (eligibleProbe.length > 0) {
-          const probeMN = eligibleProbe[Math.floor(Math.random() * eligibleProbe.length)];
-          // Versuche auch die anderen 5 NICHT aus recent3 zu ziehen
-          let pool = poolExcluding(["X", probeMN, ...recent3]);
-          if (pool.length < 5) {
-            // Fallback: recent-Constraint für die anderen lockern
-            pool = poolExcluding(["X", probeMN]);
-          }
-          const base = sampleK(pool, 5);
-          memorySet = base.concat(probeMN);
-          shuffle(memorySet);
-          probe = probeMN;
-        } else {
-          // harter Fallback
-          memorySet = pickRandomLetters(["X"], 6);
-          probe = memorySet[Math.floor(Math.random() * memorySet.length)];
-        }
-        break;
-      }
-
-      case "nonmatch-recent": {
-        if (lastSet.length) {
-          // Probe aus dem letzten Set
-          const candidates = lastSet.filter(l => l !== "X");
-          const probeCandidate = candidates[Math.floor(Math.random() * candidates.length)];
-          // Set-Buchstaben NICHT aus dem letzten Set (und ≠ Probe)
-          let pool = poolExcluding(["X", ...lastSet, probeCandidate]);
-          if (pool.length < 6) {
-            // Fallback: nur "X" und Probe verbieten
-            pool = poolExcluding(["X", probeCandidate]);
-          }
-          memorySet = sampleK(pool, 6);
-          // Sicherheit: Nonmatch garantieren
-          if (memorySet.includes(probeCandidate)) {
-            // ersetze den einen Treffer
-            let replPool = poolExcluding([...memorySet, "X", probeCandidate]);
-            if (replPool.length > 0) {
-              const idx = memorySet.indexOf(probeCandidate);
-              memorySet[idx] = replPool[Math.floor(Math.random() * replPool.length)];
-            }
-          }
-          probe = probeCandidate;
-        } else {
-          memorySet = pickRandomLetters(["X"], 6);
-          // Nonmatch: nimm eine Probe, die nicht im Set ist
-          const probePool = poolExcluding(["X", ...memorySet]);
-          probe = probePool[Math.floor(Math.random() * probePool.length)];
-        }
-        break;
-      }
-
-      case "nonmatch-nonrecent": {
-        // Set-Buchstaben NICHT aus den letzten 3 Sets
-        let pool = poolExcluding(["X", ...recent3]);
-        if (pool.length < 6) {
-          // Fallback: nur X verbieten
-          pool = poolExcluding(["X"]);
-        }
-        memorySet = sampleK(pool, 6);
-
-        // Probe NICHT im Set und NICHT in recent3
-        let probePool = poolExcluding(["X", ...memorySet, ...recent3]);
-        if (probePool.length === 0) {
-          // Fallback: nur nicht im Set
-          probePool = poolExcluding(["X", ...memorySet]);
-        }
-        probe = probePool[Math.floor(Math.random() * probePool.length)];
-        break;
-      }
+    // Sicherheits-Fallback
+    if (!memorySet) {
+        console.warn("memorySet war leer – Default gezogen");
+        memorySet = pickRandomLetters(["X"], 6);
+    }
+    if (!probe) {
+        console.warn("probe war leer – Default gezogen");
+        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
     }
 
-    // Fallbacks
-    if (!memorySet) memorySet = pickRandomLetters(["X"], 6);
-    if (!probe)     probe     = memorySet[Math.floor(Math.random() * memorySet.length)];
-    return { memorySet, probe };
-  }
+    trials.push({condition: trialInfo.condition, isNogo: trialInfo.isNogo, memorySet, probe});
+    memoryHistory.push(memorySet);
+    if (memoryHistory.length > 3) memoryHistory.shift();
 
+    console.log("Trial:", currentTrial, "MemorySet:", memorySet, "Probe:", probe);
 
-  let { memorySet, probe } = buildOnce();
-  if (typeof usedPracticeSets !== 'undefined' && inPractice) {
-    let key = memorySet.join("-");
-    let guardPractice = 0;
-    while (usedPracticeSets.has(key) && guardPractice < 30) {
-      ({ memorySet, probe } = buildOnce());
-      key = memorySet.join("-");
-      guardPractice++;
-    }
-    usedPracticeSets.add(key);
-  }
+    // Trials starten IMMER mit fester Stimulusgröße
+    setStimulusTextSize(STIMULUS_PX);
 
-  trials.push({ condition: trialInfo.condition, isNogo: trialInfo.isNogo, memorySet, probe });
-  memoryHistory.push(memorySet);
-  if (memoryHistory.length > 3) memoryHistory.shift();
-
-  // Anzeige
-  setStimulusTextSize(STIMULUS_PX);
-  displayFixation(1500, () => {
-    displayMemorySet(memorySet, 2000, () => {
-      displayFixation(3000, () => {
-        displayProbe(probe);
-      });
+    displayFixation(1500, () => {
+        displayMemorySet(memorySet, 2000, () => {
+            displayFixation(3000, () => {
+                displayProbe(probe);
+            });
+        });
     });
-  });
 }
 
 function endExperiment() {
@@ -402,14 +321,13 @@ function showInstructions() {
         In manchen Durchgängen erscheint ein „X“.  Wenn das der Fall ist, dürfen Sie keine Taste drücken.<br><br>
         Wenn Sie einen Fehler machen, erscheint ein rotes Ausrufezeichen (!) auf dem Bildschirm.<br><br>
         Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
-        <em>Drücken Sie eine beliebige Taste, um mit den Übungsdurchgängen zu starten.</em>`;
+        <em>Drücken Sie eine beliebige Taste, um das Experiment zu starten.</em>`;
     document.addEventListener("keydown", instructionHandler);
 }
 
 function instructionHandler(e) {
     document.removeEventListener("keydown", instructionHandler);
     setStimulusTextSize(STIMULUS_PX);
-    // startet mit Übungsphase (inPractice = true)
     runTrial();
 }
 
@@ -436,7 +354,4 @@ function secondExpStartHandler(e) {
     stimulusDiv.style.display = "none";
     startSecondExperiment();
 }
-
-
-
 
