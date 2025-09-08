@@ -29,8 +29,9 @@ const STIMULUS_PX = 48;  // Größe für Trials (wie im ersten Durchgang)
 const UI_TEXT_PX  = 20;  // Größe für Instruktionen/Break-Screens
 
 
-const practiceTrials = 10;   // Anzahl Übungstrials
-let inPractice = true;       // wir starten in der Übungsphase
+const practiceTrials = 10;
+let inPractice = true;
+const usedPracticeSets = new Set();
 
 function setStimulusTextSize(px) {
   stimulusDiv.style.fontSize = px + "px";
@@ -177,8 +178,8 @@ function showBreakScreen() {
 
 function showPracticeEndScreen_Exp1() {
     setStimulusTextSize(UI_TEXT_PX);
-    stimulusDiv.innerHTML = `Die Übungstrials sind beendet .<br><br>
-        <strong>Jetzt startet das eigentliche Experiment 1.</strong><br><br>
+    stimulusDiv.innerHTML = `Die Übungsdurchgänge sind beendet .<br><br>
+        <strong>Jetzt startet der erste richtige Durchgang von Experiment 1.</strong><br><br>
         Reagieren Sie weiterhin so schnell und genau wie möglich.<br><br>
         <em>Drücken Sie eine beliebige Taste, um zu beginnen.</em>`;
     document.addEventListener("keydown", function practiceEndHandler(e) {
@@ -287,6 +288,31 @@ function runTrial() {
 
     console.log("Trial:", currentTrial, "MemorySet:", memorySet, "Probe:", probe);
 
+    if (inPractice) {
+ 
+  let key = memorySet.join('-');
+
+  if (usedPracticeSets.has(key)) {
+    // Erzeuge ein komplett neues, zufälliges Set (ohne "X")
+    memorySet = pickRandomLetters(["X"], 6);
+
+    // Probe passend zur jeweiligen Bedingung neu setzen
+    if (trialInfo.isNogo) {
+      probe = "X";
+    } else if (trialInfo.condition.startsWith("match")) {
+      // Match -> Probe ist Teil des aktuellen Sets
+      probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+    } else {
+      // Nonmatch -> Probe ist NICHT im aktuellen Set, ≠ "X"
+      const candidates = letters.filter(l => l !== "X" && !memorySet.includes(l));
+      // falls irgendwas schiefgeht, fallback auf Nicht-"X"
+      probe = candidates.length ? candidates[Math.floor(Math.random() * candidates.length)]
+                                : getNonRecentLetter(memoryHistory.concat([memorySet]));
+    }
+
+    key = memorySet.join('-'); // neuen Key berechnen
+  }
+
     // Trials starten IMMER mit fester Stimulusgröße
     setStimulusTextSize(STIMULUS_PX);
 
@@ -354,7 +380,7 @@ function showInstructions() {
         In manchen Durchgängen erscheint ein „X“.  Wenn das der Fall ist, dürfen Sie keine Taste drücken.<br><br>
         Wenn Sie einen Fehler machen, erscheint ein rotes Ausrufezeichen (!) auf dem Bildschirm.<br><br>
         Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
-        <em>Drücken Sie eine beliebige Taste, um das Experiment zu starten.</em>`;
+        <em>Drücken Sie eine beliebige Taste, um mit den Übungsdurchgängen zu starten.</em>`;
     document.addEventListener("keydown", instructionHandler);
 }
 
@@ -388,4 +414,5 @@ function secondExpStartHandler(e) {
     stimulusDiv.style.display = "none";
     startSecondExperiment();
 }
+
 
