@@ -179,8 +179,8 @@ function showBreakScreen() {
 
 function showPracticeEndScreen_Exp1() {
   setStimulusTextSize(UI_TEXT_PX);
-  stimulusDiv.innerHTML = `Super! Die Übung ist beendet.<br><br>
-      <strong>Jetzt startet das eigentliche Experiment.</strong><br><br>
+  stimulusDiv.innerHTML = `Der Übunbgsblock ist beendet.<br><br>
+      <strong>Jetzt startet der erste richtige Durchgang von Experiment 1.</strong><br><br>
       Reagieren Sie weiterhin so schnell und genau wie möglich.<br><br>
       <em>Drücken Sie eine beliebige Taste, um zu beginnen.</em>`;
 
@@ -211,7 +211,7 @@ function runTrial() {
           const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
           memorySet = pickRandomLetters(["X", shared], 5);
           memorySet.push(shared);
-          shuffleInPlace(memorySet);                     // ⬅️
+          shuffleInPlace(memorySet);                     
           probe = shared;
         } else {
           memorySet = pickRandomLetters(["X"], 6);
@@ -226,7 +226,7 @@ function runTrial() {
           const probeMN = eligibleMN[Math.floor(Math.random() * eligibleMN.length)];
           const baseSet = pickRandomLetters(["X", probeMN], 5);
           memorySet = [...baseSet, probeMN];
-          shuffleInPlace(memorySet);                     // ⬅️
+          shuffleInPlace(memorySet);                     
           probe = probeMN;
         } else {
           memorySet = pickRandomLetters(["X"], 6);
@@ -239,7 +239,7 @@ function runTrial() {
         if (memoryHistory.length > 0) {
           const lastSet = memoryHistory[memoryHistory.length - 1];
           const candidates = lastSet.filter(l => l !== "X");
-          shuffleInPlace(candidates);                    // ⬅️
+          shuffleInPlace(candidates);                    
           let found = false;
           for (let i = 0; i < candidates.length; i++) {
             const probeCandidate = candidates[i];
@@ -381,7 +381,7 @@ function showInstructions() {
       In manchen Durchgängen erscheint ein „X“.  Wenn das der Fall ist, dürfen Sie keine Taste drücken.<br><br>
       Wenn Sie einen Fehler machen, erscheint ein rotes Ausrufezeichen (!) auf dem Bildschirm.<br><br>
       Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
-      <em>Drücken Sie eine beliebige Taste, um das Experiment zu starten.</em>`;
+      <em>Drücken Sie eine beliebige Taste, um den Übungsblock zu starten.</em>`;
   document.addEventListener("keydown", instructionHandler);
 }
 
@@ -404,7 +404,7 @@ function startSecondExperimentInstructions() {
   In manchen Durchgängen erscheint die Ellipse in Blau. Dann dürfen Sie keine Taste drücken. <br><br>
   In manchen Durchgängen erscheint die Ellipse zuerst in weiß und wechselt dann zu blau. Auch dann dürfen Sie keine Taste drücken.<br><br>
   Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
-  <em>Drücken Sie eine beliebige Taste, um das Experiment zu starten.</em>`;
+  <em>Drücken Sie eine beliebige Taste, um den Übunbgsblock zu starten.</em>`;
   document.addEventListener("keydown", secondExpStartHandler);
 }
 
@@ -413,3 +413,4 @@ function secondExpStartHandler() {
   stimulusDiv.style.display = "none";
   startSecondExperiment();
 }
+
