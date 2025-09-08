@@ -28,6 +28,10 @@ const downloadBtn = document.getElementById("download-btn");
 const STIMULUS_PX = 48;  // Größe für Trials (wie im ersten Durchgang)
 const UI_TEXT_PX  = 20;  // Größe für Instruktionen/Break-Screens
 
+// === Übungs-Setup ===
+const practiceTrials = 10;   // Anzahl Übungstrials
+let inPractice = true;       // wir starten in der Übungsphase
+
 function setStimulusTextSize(px) {
   stimulusDiv.style.fontSize = px + "px";
   stimulusDiv.style.lineHeight = "1";
@@ -96,15 +100,18 @@ function displayProbe(probe) {
             stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
         }
 
-        data.push({
-            trial: currentTrial+1,
-            condition: trial.condition,
-            isNogo: trial.isNogo,
-            probe: probe,
-            response: e.key,
-            correct: correct,
-            rt: rt
-        });
+        // Übungsdaten NICHT speichern
+        if (!inPractice) {
+          data.push({
+              trial: currentTrial+1,
+              condition: trial.condition,
+              isNogo: trial.isNogo,
+              probe: probe,
+              response: e.key,
+              correct: correct,
+              rt: rt
+          });
+        }
 
         setTimeout(nextTrial, 500);
     }
@@ -113,15 +120,18 @@ function displayProbe(probe) {
     responseTimeout = setTimeout(() => {
         document.removeEventListener("keydown", handleResponse);
         if (!responseGiven) {
-            data.push({
-                trial: currentTrial+1,
-                condition: trials[currentTrial].condition,
-                isNogo: trials[currentTrial].isNogo,
-                probe: probe,
-                response: "none",
-                correct: probe === "X",
-                rt: "none"
-            });
+            // Übungsdaten NICHT speichern
+            if (!inPractice) {
+              data.push({
+                  trial: currentTrial+1,
+                  condition: trials[currentTrial].condition,
+                  isNogo: trials[currentTrial].isNogo,
+                  probe: probe,
+                  response: "none",
+                  correct: probe === "X",
+                  rt: "none"
+              });
+            }
             nextTrial();
         }
     }, 2000);
@@ -130,13 +140,20 @@ function displayProbe(probe) {
 function nextTrial() {
     currentTrial++;
 
-    if (currentTrial >= trialsPerBlock) {
-        if (currentBlock < totalBlocks) {
-            showBreakScreen();
-        } else {
-            endExperiment();
+    if (inPractice) {
+        if (currentTrial >= practiceTrials) {
+            showPracticeEndScreen_Exp1();
+            return;
         }
-        return;
+    } else {
+        if (currentTrial >= trialsPerBlock) {
+            if (currentBlock < totalBlocks) {
+                showBreakScreen();
+            } else {
+                endExperiment();
+            }
+            return;
+        }
     }
 
     runTrial();
@@ -153,6 +170,22 @@ function showBreakScreen() {
         currentBlock++;
         currentTrial = 0;
         shuffle(allTrialConditions);
+        setStimulusTextSize(STIMULUS_PX);
+        runTrial();
+    });
+}
+
+function showPracticeEndScreen_Exp1() {
+    setStimulusTextSize(UI_TEXT_PX);
+    stimulusDiv.innerHTML = `Super! Die Übung ist beendet.<br><br>
+        <strong>Jetzt startet das eigentliche Experiment.</strong><br><br>
+        Reagieren Sie weiterhin so schnell und genau wie möglich.<br><br>
+        <em>Drücken Sie eine beliebige Taste, um zu beginnen.</em>`;
+    document.addEventListener("keydown", function practiceEndHandler(e) {
+        document.removeEventListener("keydown", practiceEndHandler);
+        inPractice = false;
+        currentTrial = 0;
+        shuffle(allTrialConditions);       // frische Reihenfolge für Test
         setStimulusTextSize(STIMULUS_PX);
         runTrial();
     });
@@ -328,6 +361,7 @@ function showInstructions() {
 function instructionHandler(e) {
     document.removeEventListener("keydown", instructionHandler);
     setStimulusTextSize(STIMULUS_PX);
+    // startet mit Übungsphase (inPractice = true)
     runTrial();
 }
 
@@ -354,5 +388,3 @@ function secondExpStartHandler(e) {
     stimulusDiv.style.display = "none";
     startSecondExperiment();
 }
-
-
