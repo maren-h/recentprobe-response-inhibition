@@ -427,7 +427,7 @@ function startSecondExperimentInstructions() {
     In manchen Durchgängen erscheint die Ellipse in Blau. Dann dürfen Sie keine Taste drücken. <br><br>
     In manchen Durchgängen erscheint die Ellipse zuerst in weiß und wechselt dann zu blau. Auch dann dürfen Sie keine Taste drücken.<br><br>
     Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
-    <em>Drücken Sie eine beliebige Taste, um das Experiment zu starten.</em>`;
+    <em>Drücken Sie eine beliebige Taste, um mit den Übungsdurchgängen zu starten.</em>`;
     document.addEventListener("keydown", secondExpStartHandler);
 }
 
@@ -436,3 +436,4 @@ function secondExpStartHandler(e) {
     stimulusDiv.style.display = "none";
     startSecondExperiment();
 }
+
