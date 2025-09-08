@@ -193,136 +193,136 @@ function showPracticeEndScreen_Exp1() {
 }
 
 function runTrial() {
-    const trialInfo = allTrialConditions[currentTrial];
-    let memorySet;
-    let probe;
+  const trialInfo = allTrialConditions[currentTrial];
+  let memorySet;
+  let probe;
 
-    if (trialInfo.isNogo) {
-        memorySet = pickRandomLetters(["X"], 6);
-        probe = "X";
-    } else {
-        switch (trialInfo.condition) {
-           case "match-recent":
-                if (memoryHistory.length > 0) {
-                    const lastSet = memoryHistory[memoryHistory.length - 1];
-                    const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
-                    memorySet = pickRandomLetters(["X", shared], 5);
-                    memorySet.push(shared);
-                    shuffle(memorySet);
-                    probe = shared;
-                } else {
-                    memorySet = pickRandomLetters(["X"], 6);
-                    probe = memorySet[Math.floor(Math.random() * memorySet.length)];
-                }
-                break;
-
-            case "match-nonrecent":
-                const recentMN = memoryHistory.slice(-3).flat();
-                const eligibleMN = letters.filter(l => !recentMN.includes(l) && l !== "X");
-                if (eligibleMN.length > 0) {
-                    const probeMN = eligibleMN[Math.floor(Math.random() * eligibleMN.length)];
-                    const baseSet = pickRandomLetters(["X", probeMN], 5);
-                    memorySet = [...baseSet, probeMN];
-                    shuffle(memorySet);
-                    probe = probeMN;
-                } else {
-                    memorySet = pickRandomLetters(["X"], 6);
-                    probe = memorySet[Math.floor(Math.random() * memorySet.length)];
-                }
-                break;
-
-            case "nonmatch-recent":
-                if (memoryHistory.length > 0) {
-                    const lastSet = memoryHistory[memoryHistory.length - 1];
-                    const candidates = lastSet.filter(l => l !== "X");
-                    shuffle(candidates);
-                    let found = false;
-                    for (let i = 0; i < candidates.length; i++) {
-                        const probeCandidate = candidates[i];
-                        const tempSet = pickRandomLetters(["X", probeCandidate], 6);
-                        if (!tempSet.includes(probeCandidate)) {
-                            memorySet = tempSet;
-                            probe = probeCandidate;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        memorySet = pickRandomLetters(["X"], 6);
-                        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
-                    }
-                } else {
-                    memorySet = pickRandomLetters(["X"], 6);
-                    probe = memorySet[Math.floor(Math.random() * memorySet.length)];
-                }
-                break;
-
-            case "nonmatch-nonrecent":
-                const recentNMN = memoryHistory.slice(-3).flat();
-                memorySet = pickRandomLetters(["X", ...recentNMN], 6);
-                const probeCandidates = letters.filter(
-                    l => !memorySet.includes(l) && !recentNMN.includes(l) && l !== "X"
-                );
-                if (probeCandidates.length > 0) {
-                    probe = probeCandidates[Math.floor(Math.random() * probeCandidates.length)];
-                } else {
-                    probe = getNonRecentLetter(memoryHistory.concat([memorySet]));
-                }
-                break;
-        }
-    }
-
-    // Sicherheits-Fallback
-    if (!memorySet) {
-        console.warn("memorySet war leer – Default gezogen");
-        memorySet = pickRandomLetters(["X"], 6);
-    }
-    if (!probe) {
-        console.warn("probe war leer – Default gezogen");
-        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
-    }
-
-    trials.push({condition: trialInfo.condition, isNogo: trialInfo.isNogo, memorySet, probe});
-    memoryHistory.push(memorySet);
-    if (memoryHistory.length > 3) memoryHistory.shift();
-
-    console.log("Trial:", currentTrial, "MemorySet:", memorySet, "Probe:", probe);
-
-    if (inPractice) {
- 
-  let key = memorySet.join('-');
-
-  if (usedPracticeSets.has(key)) {
-    // Erzeuge ein komplett neues, zufälliges Set (ohne "X")
+  if (trialInfo.isNogo) {
     memorySet = pickRandomLetters(["X"], 6);
+    probe = "X";
+  } else {
+    switch (trialInfo.condition) {
+      case "match-recent":
+        if (memoryHistory.length > 0) {
+          const lastSet = memoryHistory[memoryHistory.length - 1];
+          const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
+          memorySet = pickRandomLetters(["X", shared], 5);
+          memorySet.push(shared);
+          shuffle(memorySet);
+          probe = shared;
+        } else {
+          memorySet = pickRandomLetters(["X"], 6);
+          probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+        }
+        break;
 
-    // Probe passend zur jeweiligen Bedingung neu setzen
-    if (trialInfo.isNogo) {
-      probe = "X";
-    } else if (trialInfo.condition.startsWith("match")) {
-      // Match -> Probe ist Teil des aktuellen Sets
-      probe = memorySet[Math.floor(Math.random() * memorySet.length)];
-    } else {
-      // Nonmatch -> Probe ist NICHT im aktuellen Set, ≠ "X"
-      const candidates = letters.filter(l => l !== "X" && !memorySet.includes(l));
-      // falls irgendwas schiefgeht, fallback auf Nicht-"X"
-      probe = candidates.length ? candidates[Math.floor(Math.random() * candidates.length)]
-                                : getNonRecentLetter(memoryHistory.concat([memorySet]));
+      case "match-nonrecent": {
+        const recentMN = memoryHistory.slice(-3).flat();
+        const eligibleMN = letters.filter(l => !recentMN.includes(l) && l !== "X");
+        if (eligibleMN.length > 0) {
+          const probeMN = eligibleMN[Math.floor(Math.random() * eligibleMN.length)];
+          const baseSet = pickRandomLetters(["X", probeMN], 5);
+          memorySet = [...baseSet, probeMN];
+          shuffle(memorySet);
+          probe = probeMN;
+        } else {
+          memorySet = pickRandomLetters(["X"], 6);
+          probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+        }
+        break;
+      }
+
+      case "nonmatch-recent":
+        if (memoryHistory.length > 0) {
+          const lastSet = memoryHistory[memoryHistory.length - 1];
+          const candidates = lastSet.filter(l => l !== "X");
+          shuffle(candidates);
+          let found = false;
+          for (let i = 0; i < candidates.length; i++) {
+            const probeCandidate = candidates[i];
+            const tempSet = pickRandomLetters(["X", probeCandidate], 6);
+            if (!tempSet.includes(probeCandidate)) {
+              memorySet = tempSet;
+              probe = probeCandidate;
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            memorySet = pickRandomLetters(["X"], 6);
+            probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+          }
+        } else {
+          memorySet = pickRandomLetters(["X"], 6);
+          probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+        }
+        break;
+
+      case "nonmatch-nonrecent": {
+        const recentNMN = memoryHistory.slice(-3).flat();
+        memorySet = pickRandomLetters(["X", ...recentNMN], 6);
+        const probeCandidates = letters.filter(
+          l => !memorySet.includes(l) && !recentNMN.includes(l) && l !== "X"
+        );
+        if (probeCandidates.length > 0) {
+          probe = probeCandidates[Math.floor(Math.random() * probeCandidates.length)];
+        } else {
+          probe = getNonRecentLetter(memoryHistory.concat([memorySet]));
+        }
+        break;
+      }
     }
-
-    key = memorySet.join('-'); // neuen Key berechnen
   }
 
-    // Trials starten IMMER mit fester Stimulusgröße
-    setStimulusTextSize(STIMULUS_PX);
+  // Fallbacks
+  if (!memorySet) {
+    console.warn("memorySet war leer – Default gezogen");
+    memorySet = pickRandomLetters(["X"], 6);
+  }
+  if (!probe) {
+    console.warn("probe war leer – Default gezogen");
+    probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+  }
 
-    displayFixation(1500, () => {
-        displayMemorySet(memorySet, 2000, () => {
-            displayFixation(3000, () => {
-                displayProbe(probe);
-            });
-        });
+ 
+  if (inPractice) {
+    let key = memorySet.join("-");
+    if (usedPracticeSets.has(key)) {
+      // Neues, garantiert anderes Set (ohne "X") ziehen
+      memorySet = pickRandomLetters(["X"], 6);
+
+      // Probe passend zur Bedingung setzen
+      if (trialInfo.isNogo) {
+        probe = "X";
+      } else if (trialInfo.condition.startsWith("match")) {
+        probe = memorySet[Math.floor(Math.random() * memorySet.length)];
+      } else {
+        const candidates = letters.filter(l => l !== "X" && !memorySet.includes(l));
+        probe = candidates.length
+          ? candidates[Math.floor(Math.random() * candidates.length)]
+          : getNonRecentLetter(memoryHistory.concat([memorySet]));
+      }
+      key = memorySet.join("-");
+    }
+    usedPracticeSets.add(key);
+  }
+
+
+  trials.push({ condition: trialInfo.condition, isNogo: trialInfo.isNogo, memorySet, probe });
+  memoryHistory.push(memorySet);
+  if (memoryHistory.length > 3) memoryHistory.shift();
+
+  console.log("Trial:", currentTrial, "MemorySet:", memorySet, "Probe:", probe);
+
+  // Präsentation
+  setStimulusTextSize(STIMULUS_PX);
+  displayFixation(1500, () => {
+    displayMemorySet(memorySet, 2000, () => {
+      displayFixation(3000, () => {
+        displayProbe(probe);
+      });
     });
+  });
 }
 
 function endExperiment() {
@@ -414,5 +414,6 @@ function secondExpStartHandler(e) {
     stimulusDiv.style.display = "none";
     startSecondExperiment();
 }
+
 
 
