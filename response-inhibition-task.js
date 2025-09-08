@@ -22,6 +22,11 @@ const maxSSD  = 0.900;
 const trialsPerSet = 80;
 const totalSets    = 3;
 
+
+const practiceTrials = 10;
+let practiceMode = true;          
+let practiceJustFinished = false; 
+
 let currentSet = 0;
 let setTrialIndex = 0;
 let currentTrial;
@@ -39,36 +44,25 @@ const fixationDuration = 0.5;
 const stimulusDuration = 1.0;
 let ellipseShouldBeBlue = false;
 
-// Start-Guards / Flags
-let exp2HasStarted = false;       // verhindert Doppelstart
-let revealCanvasRequested = false; // Canvas später sicher anzeigen
 
+let exp2HasStarted = false;      
+let revealCanvasRequested = false; 
 
 const nowMs = () => (typeof millis === 'function' ? millis() : performance.now());
-
 
 function startSecondExperiment() {
   if (exp2HasStarted) return;
   exp2HasStarted = true;
   revealCanvasRequested = true;
 
- 
   (function bootWhenReady() {
     const canvasEl = document.querySelector('canvas');
     const p5Ready  = (typeof randomGaussian === 'function') && (typeof millis === 'function');
     if (canvasEl && p5Ready) {
-      // Canvas sichtbar machen
       canvasEl.style.display = 'block';
 
-      // Trials initialisieren
-      currentSet = 0;
-      fullData = [];
-      setTrialIndex = 0;
-      trialList = generateTrials();
-      currentTrial = trialList[setTrialIndex];
-      isiDuration = Math.max(0.2, randomGaussian(1.5, 0.372));
-      state = 'ISI';
-      trialStartTime = nowMs();
+    
+      state = 'intro';
       responded = false;
       stopPresented = false;
       ellipseShouldBeBlue = false;
@@ -78,7 +72,7 @@ function startSecondExperiment() {
   })();
 }
 
-// ======= p5-Setup & -Draw =======
+
 function setup() {
   const c = createCanvas(windowWidth, windowHeight);
 
@@ -91,9 +85,8 @@ function setup() {
   frameRate(60);
   fill(255);
 
-  // Falls Exp.2 schon gestartet wurde, aber Initialisierung noch nicht durch war,
-  // übernimmt die Warteschleife in startSecondExperiment() den Rest.
-  state = exp2HasStarted ? 'ISI' : 'intro';
+  
+  state = exp2HasStarted ? 'intro' : 'intro';
 }
 
 function windowResized() {
@@ -102,8 +95,11 @@ function windowResized() {
 
 function keyPressed() {
   if (state === 'intro') {
-    // Wenn Start bereits aus Exp.1 angestoßen: kein zweiter Start
-    if (!exp2HasStarted) startSet();
+    startSet();
+  } else if (state === 'practiceEnd') {
+    // erster echter Block
+    practiceJustFinished = false;
+    startSet();
   } else if (state === 'break') {
     startSet();
   } else if (state === 'end') {
@@ -147,6 +143,22 @@ function generateTrials() {
 }
 
 function startSet() {
+  if (practiceMode) {
+    // einmaliger Übungsblock mit 10 Trials
+    const full = generateTrials();
+    trialList = full.slice(0, practiceTrials);
+    setTrialIndex = 0;
+    currentTrial = trialList[setTrialIndex];
+    isiDuration = Math.max(0.2, randomGaussian(1.5, 0.372));
+    state = 'ISI';
+    trialStartTime = nowMs();
+    responded = false;
+    stopPresented = false;
+    ellipseShouldBeBlue = false;
+    return;
+  }
+
+  // ab hier: echte Sets
   currentSet++;
   if (currentSet > totalSets) {
     state = 'end';
@@ -172,6 +184,8 @@ function draw() {
 
   if (state === 'intro') {
     drawIntro();
+  } else if (state === 'practiceEnd') {
+    drawPracticeEndScreen_Exp2();
   } else if (state === 'break') {
     drawBreakScreen();
   } else if (state === 'ISI') {
@@ -217,11 +231,21 @@ function draw() {
   } else if (state === 'interTrial') {
     if (elapsed >= 0.5) {
       setTrialIndex++;
-      if (setTrialIndex >= trialsPerSet) {
-        if (currentSet < totalSets) {
-          state = 'break';
+      const endOfThisList = setTrialIndex >= trialList.length;
+
+      if (endOfThisList) {
+        if (practiceMode) {
+          // Übung beendet -> Übergangsscreen
+          practiceMode = false;
+          practiceJustFinished = true;
+          state = 'practiceEnd';
         } else {
-          state = 'end';
+          // normales Blockende
+          if (currentSet < totalSets) {
+            state = 'break';
+          } else {
+            state = 'end';
+          }
         }
       } else {
         currentTrial = trialList[setTrialIndex];
@@ -246,6 +270,20 @@ function drawIntro() {
   const margin = 50;
   const wrap = width - 2 * margin;
   const textLines = `Experiment 2\n\nDrücken Sie eine beliebige Taste, um zu starten.`;
+  text(textLines, margin, 150, wrap);
+}
+
+function drawPracticeEndScreen_Exp2() {
+  background(0);
+  textSize(18);
+  textAlign(LEFT, TOP);
+  textWrap(WORD);
+  const margin = 50;
+  const wrap = width - 2 * margin;
+  const textLines = `Die Übungstrials sind beendet.\n\n
+  Jetzt startet das eigentliche Experiment 2.\n\n
+  Bitte reagieren Sie weiterhin so schnell und genau wie möglich.\n\n
+  Drücken Sie eine beliebige Taste, um zu beginnen.`;
   text(textLines, margin, 150, wrap);
 }
 
@@ -304,14 +342,17 @@ function handleResponse() {
     else           ssd = Math.min(maxSSD, ssd + ssdStep);
   }
 
-  fullData.push({
-    set: currentSet,
-    trial: setTrialIndex + 1,
-    type: currentTrial.type,
-    direction: currentTrial.direction,
-    responded: responded,
-    ellipseColor: ellipseShouldBeBlue ? 'blue' : 'white'
-  });
+  // Übungsdaten NICHT speichern
+  if (currentSet > 0) {
+    fullData.push({
+      set: currentSet,
+      trial: setTrialIndex + 1,
+      type: currentTrial.type,
+      direction: currentTrial.direction,
+      responded: responded,
+      ellipseColor: ellipseShouldBeBlue ? 'blue' : 'white'
+    });
+  }
 }
 
 function downloadCSV() {
@@ -341,10 +382,8 @@ function shuffle(array) {
   return array;
 }
 
- window.startSecondExperiment = startSecondExperiment; // wird von Exp 1 aufgerufen
+  window.startSecondExperiment = startSecondExperiment; // wird von Exp 1 aufgerufen
   window.setup = setup;       // p5 braucht globales setup()
   window.draw = draw;         // p5 braucht globales draw()
   window.keyPressed = keyPressed; // p5 ruft globales keyPressed() auf
 })();
-
-
