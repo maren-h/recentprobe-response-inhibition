@@ -38,7 +38,7 @@ const STIMULUS_PX = 48;
 const UI_TEXT_PX  = 20;  
 
 
-const practiceTrials = 10;     
+const practiceTrials = 20;     
 let inPractice = true;         
 const usedPracticeSets = new Set(); 
 
@@ -413,4 +413,5 @@ function secondExpStartHandler() {
   stimulusDiv.style.display = "none";
   startSecondExperiment();
 }
+
 
