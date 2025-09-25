@@ -19,11 +19,11 @@ const minSSD  = 0.020;
 const maxSSD  = 0.900;
 
 // Trial-Setup
-const trialsPerSet = 20;
+const trialsPerSet = 68;
 const totalSets    = 3;
 
 
-const practiceTrials = 10;
+const practiceTrials = 20;
 let practiceMode = true;          
 let practiceJustFinished = false; 
 
@@ -281,7 +281,7 @@ function drawPracticeEndScreen_Exp2() {
   const margin = 50;
   const wrap = width - 2 * margin;
   const textLines = `Die Übungsdurchgänge sind beendet.\n\n
-  Jetzt startet der erste richtige Durchgang von Experiment.\n\n
+  Jetzt startet der erste richtige Durchgang von Experiment 2.\n\n
   Bitte reagieren Sie weiterhin so schnell und genau wie möglich.\n\n
   Drücken Sie eine beliebige Taste, um zu beginnen.`;
   text(textLines, margin, 150, wrap);
@@ -387,5 +387,6 @@ function shuffle(array) {
   window.draw = draw;         // p5 braucht globales draw()
   window.keyPressed = keyPressed; // p5 ruft globales keyPressed() auf
 })();
+
 
 
