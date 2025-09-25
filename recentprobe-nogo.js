@@ -37,6 +37,49 @@ const downloadBtn = document.getElementById("download-btn");
 const STIMULUS_PX = 48;  
 const UI_TEXT_PX  = 20;  
 
+let instructionPages = [
+  `Experiment 1 <br><br>
+   Willkommen zum ersten Experiment. Drücken Sie eine beliebige Taste, um sich durch die Instruktionen zu klicken.`,
+   
+  `Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz in der Mitte des Bildschirms. Bitte schauen Sie darauf.`,
+
+  `Anschließend erscheinen wie auf dem Beispielbild sechs Buchstaben. Merken Sie sich diese so gut wie möglich.<br><br>
+    <img src="memoryset.png" style="max-width:400px; display:block; margin:auto;"`,
+
+  `Als nächstes erscheint ein einzelner Buchstabe.<br><br>
+  Ihre Aufgabe ist es zu entscheiden, ob dieser Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
+   Wenn ja, drücken Sie die rechte Pfeiltaste (→)<br>
+   Wenn nein, drücken Sie die linke Pfeiltaste (←)`,
+
+  `In manchen Durchgängen erscheint ein „X“. Dann dürfen Sie **keine** Taste drücken (No-Go).`,
+
+  `Wenn Sie einen Fehler machen, erscheint ein rotes Ausrufezeichen (!) auf dem Bildschirm.<br><br>
+   Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
+   <em>Drücken Sie eine beliebige Taste, um den Übungsblock zu starten.</em>`
+];
+let currentInstructionPage = 0;
+
+let secondInstructionPages = [
+  `Experiment 2<br><br>
+   Willkommen zum zweiten Experiment. Drücken Sie eine beliebige Taste, um sich durch die Instruktionen zu klicken.`,
+  
+   Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz innerhalb einer Ellipse. Bitte schauen Sie darauf.`,
+
+  `Als nächstes erscheint rechts oder links vom Fixationskreuz ein Pfeil.<br>
+   Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.<br><br>
+   <img src="ellipseweiß.png" style="max-width:400px; display:block; margin:auto;"`,
+
+  `In manchen Durchgängen erscheint die Ellipse in Blau. Dann dürfen Sie **keine** Taste drücken.<br><br>
+   <img src="ellipseblau.png" style="max-width:400px; display:block; margin:auto;"`
+
+  `In manchen Durchgängen erscheint die Ellipse zuerst in Weiß und wechselt dann zu Blau. Auch dann dürfen Sie **keine** Taste drücken.`,
+
+  `Wenn Sie einen Fehler machen, erscheint ein rotes Ausrufezeichen (!) auf dem Bildschirm.<br><br>
+   Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
+   <em>Drücken Sie eine beliebige Taste, um den Übungsblock zu starten.</em>`
+];
+let currentSecondInstructionPage = 0;
+
 
 const practiceTrials = 20;     
 let inPractice = true;         
@@ -165,7 +208,11 @@ function showBreakScreen() {
   setStimulusTextSize(UI_TEXT_PX);
   stimulusDiv.innerHTML = `Block ${currentBlock} ist abgeschlossen.<br><br>
       Wenn Sie möchten, können Sie eine kurze Pause machen.<br><br>
-      Wenn Sie wieder bereit sind, drücken Sie eine beliebige Taste, um mit Block ${currentBlock + 1} fortzufahren.`;
+      Wenn Sie wieder bereit sind, drücken Sie eine beliebige Taste, um mit Block ${currentBlock + 1} fortzufahren. <br><br>
+      Zur Erinnerung: Ihre Aufgabe ist es zu entscheiden, ob der einzelne Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
+   Wenn ja, drücken Sie die rechte Pfeiltaste (→)<br>
+   Wenn nein, drücken Sie die linke Pfeiltaste (←)<br>
+   Drücken Sie keine Taste, wenn ein "X" erscheint.`;
 
   document.addEventListener("keydown", function breakHandler() {
     document.removeEventListener("keydown", breakHandler);
@@ -181,7 +228,10 @@ function showPracticeEndScreen_Exp1() {
   setStimulusTextSize(UI_TEXT_PX);
   stimulusDiv.innerHTML = `Der Übunbgsblock ist beendet.<br><br>
       <strong>Jetzt startet der erste richtige Durchgang von Experiment 1.</strong><br><br>
-      Reagieren Sie weiterhin so schnell und genau wie möglich.<br><br>
+      Zur Erinnerung: Ihre Aufgabe ist es zu entscheiden, ob der einzelne Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
+   Wenn ja, drücken Sie die rechte Pfeiltaste (→)<br>
+   Wenn nein, drücken Sie die linke Pfeiltaste (←)<br>
+   Drücken Sie keine Taste, wenn ein "X" erscheint.<br><br>
       <em>Drücken Sie eine beliebige Taste, um zu beginnen.</em>`;
 
   document.addEventListener("keydown", function practiceEndHandler() {
@@ -371,25 +421,24 @@ function welcomeHandler() {
 
 function showInstructions() {
   setStimulusTextSize(UI_TEXT_PX);
-  stimulusDiv.innerHTML = `Experiment 1 <br><br>
-      Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz in der Mitte des Bildschirms. Bitte schauen Sie darauf.<br><br>
-      Anschließend erscheinen sechs Buchstaben, merken Sie sich diese so gut wie möglich.<br><br>
-      Als nächstes erscheint ein einzelner Buchstabe in der Mitte des Bildschirms. 
-      Ihre Aufgabe ist es, zu entscheiden, ob dieser Buchstabe Teil des vorherigen Buchstabensatzes war:<br><br>
-      Wenn ja, drücken Sie die rechte Pfeiltaste (→)<br>
-      Wenn nein, drücken Sie die linke Pfeiltaste (←)<br><br>
-      In manchen Durchgängen erscheint ein „X“.  Wenn das der Fall ist, dürfen Sie keine Taste drücken.<br><br>
-      Wenn Sie einen Fehler machen, erscheint ein rotes Ausrufezeichen (!) auf dem Bildschirm.<br><br>
-      Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
-      <em>Drücken Sie eine beliebige Taste, um den Übungsblock zu starten.</em>`;
-  document.addEventListener("keydown", instructionHandler);
+  stimulusDiv.innerHTML = instructionPages[currentInstructionPage];
+
+  document.addEventListener("keydown", instructionPageHandler);
 }
 
-function instructionHandler() {
-  document.removeEventListener("keydown", instructionHandler);
-  setStimulusTextSize(STIMULUS_PX);
-  // startet mit Übungsphase (inPractice = true)
-  runTrial();
+function instructionPageHandler() {
+  document.removeEventListener("keydown", instructionPageHandler);
+  currentInstructionPage++;
+
+  if (currentInstructionPage < instructionPages.length) {
+    // nächste Seite zeigen
+    showInstructions();
+  } else {
+    // fertig: Übungsblock starten
+    currentInstructionPage = 0; // optional zurücksetzen für Wiederverwendung
+    setStimulusTextSize(STIMULUS_PX);
+    runTrial();
+  }
 }
 
 showWelcomeScreen();
@@ -397,21 +446,28 @@ showWelcomeScreen();
 function startSecondExperimentInstructions() {
   downloadBtn.style.display = "none";
   setStimulusTextSize(UI_TEXT_PX);
-  stimulusDiv.innerHTML = `Experiment 2<br><br>
-  Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz innerhalb einer Ellipse. Bitte schauen Sie darauf.<br><br>
-  Als nächstes erscheint rechts oder links von dem Fixationskreuz ein Pfeil.
-  Reagieren Sie mit den Pfeiltasten, auf die Richtung, in die der Pfeil zeigt. <br><br>
-  In manchen Durchgängen erscheint die Ellipse in Blau. Dann dürfen Sie keine Taste drücken. <br><br>
-  In manchen Durchgängen erscheint die Ellipse zuerst in weiß und wechselt dann zu blau. Auch dann dürfen Sie keine Taste drücken.<br><br>
-  Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
-  <em>Drücken Sie eine beliebige Taste, um den Übunbgsblock zu starten.</em>`;
-  document.addEventListener("keydown", secondExpStartHandler);
+  currentSecondInstructionPage = 0;
+  stimulusDiv.style.display = ""; // sicherheitshalber einblenden
+  stimulusDiv.innerHTML = secondInstructionPages[currentSecondInstructionPage];
+
+  document.addEventListener("keydown", secondInstructionPageHandler);
 }
 
-function secondExpStartHandler() {
-  document.removeEventListener("keydown", secondExpStartHandler);
-  stimulusDiv.style.display = "none";
-  startSecondExperiment();
+function secondInstructionPageHandler() {
+  document.removeEventListener("keydown", secondInstructionPageHandler);
+  currentSecondInstructionPage++;
+
+  if (currentSecondInstructionPage < secondInstructionPages.length) {
+    setStimulusTextSize(UI_TEXT_PX);
+    stimulusDiv.innerHTML = secondInstructionPages[currentSecondInstructionPage];
+    document.addEventListener("keydown", secondInstructionPageHandler);
+  } else {
+    // alle Seiten durch → Experiment 2 starten
+    currentSecondInstructionPage = 0;
+    stimulusDiv.style.display = "none";
+    startSecondExperiment();
+  }
 }
+
 
 
