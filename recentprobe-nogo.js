@@ -37,6 +37,14 @@ const downloadBtn = document.getElementById("download-btn");
 const STIMULUS_PX = 48;  
 const UI_TEXT_PX  = 20;  
 
+const pad = n => String(n).padStart(2,'0');
+const fmtDate = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const fmtTime = d => `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+
+let expStartMs = null;
+let expDateStr = null;
+let expStartTimeStr = null;
+
 let instructionPages = [
   `Experiment 1 <br><br>
    Willkommen zum ersten Experiment. Drücken Sie eine beliebige Taste, um sich durch die Instruktionen zu klicken.`,
@@ -155,22 +163,19 @@ function displayProbe(probe) {
   }
 }
 
-    // Übungsdaten NICHT speichern
-    if (!inPractice) {
-      data.push({
-        trial: currentTrial+1,
-        condition: trial.condition,
-        isNogo: trial.isNogo,
-        probe: probe,
-        response: e.key,
-        correct: correct,
-        rt: rt
-      });
-    }
-
-    if (error) {
+// Übungsdaten NICHT speichern
+if (!inPractice) {
+  data.push({
+    trial: currentTrial+1,
+    condition: trial.condition,
+    isNogo: trial.isNogo,
+    probe: probe,
+    response: e.key,
+    correct: correct,
+    rt: rt
+    memorySet:memSetStr
+  });
 }
-
 if (inPractice) {
   setTimeout(nextTrial, 2000);  
 } else {
@@ -191,6 +196,7 @@ if (inPractice) {
           response: "none",
           correct: probe === "X",
           rt: "none"
+          memorySet:memSetStr
         });
       }
       nextTrial();
@@ -263,6 +269,12 @@ function showPracticeEndScreen_Exp1() {
 
 function runTrial() {
   const trialInfo = allTrialConditions[currentTrial];
+  if (expStartMs === null) {
+  const start = new Date();
+  expStartMs = start.getTime();
+  expDateStr = fmtDate(start);
+  expStartTimeStr = fmtTime(start);
+}
   let memorySet;
   let probe;
 
@@ -403,10 +415,32 @@ function endExperiment() {
 }
 
 function downloadCSV() {
-  let csv = "trial;condition;isNogo;probe;response;correct;rt\n";
+  
+  const end = new Date();
+  const totalMs = (expStartMs != null) ? (end.getTime() - expStartMs) : "";
+
+  const lines = [];
+
+  // Meta-Zeile (nur 1x)
+  lines.push(`#${expDateStr || ""};${expStartTimeStr || ""};${totalMs}`);
+
+  lines.push("trial;condition;isNogo;probe;response;correct;rt;memorySet");
+
+  // Daten
   data.forEach(d => {
-    csv += `${d.trial};${d.condition};${d.isNogo};${d.probe};${d.response};${d.correct};${d.rt}\n`;
+    lines.push([
+      d.trial,
+      d.condition,
+      d.isNogo,
+      d.probe,
+      d.response,
+      d.correct,
+      d.rt,
+      d.memorySet || ""
+    ].join(";"));
   });
+
+  const csv = lines.join("\n");
   const blob = new Blob([csv], {type: 'text/csv'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -415,8 +449,6 @@ function downloadCSV() {
   a.click();
   URL.revokeObjectURL(url);
 }
-
-downloadBtn.addEventListener("click", downloadCSV);
 
 
 function showWelcomeScreen() {
@@ -484,6 +516,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
