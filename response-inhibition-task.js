@@ -327,7 +327,7 @@ function drawBreakScreen() {
   const wrap = width - 2 * margin;
   const textLines = `Sie haben ${currentSet} von ${totalSets} Blöcken abgeschlossen.\n\n
   Wenn Sie möchten, können Sie eine kurze Pause machen.\n\n
-  Wenn Sie wieder bereit sind, drücken Sie eine beliebige Taste, um fortzufahren.`\n\n
+  Wenn Sie wieder bereit sind, drücken Sie eine beliebige Taste, um fortzufahren.\n\n
   Zur Erinnerung: Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.\n\n
   Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
   Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.\n\n
@@ -513,6 +513,7 @@ function shuffle(array) {
   window.draw = draw;         // p5 braucht globales draw()
   window.keyPressed = keyPressed; // p5 ruft globales keyPressed() auf
 })();
+
 
 
 
