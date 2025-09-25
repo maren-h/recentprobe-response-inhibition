@@ -142,8 +142,18 @@ function displayProbe(probe) {
     }
 
     if (error) {
-      stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
-    }
+      if (inPractice) {
+    stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
+      <div style="margin-top:10px; font-size:16px; color:black;">
+        Zur Erinnerung:<br>
+         einzelner Buchstabe kam auch bei den sechs Buchstaben vor: → rechte Pfeiltaste <br>
+         einzelner Buchstabe kam nicht bei den sechs Buchstaben vor: ← linke Pfeiltaste <br>
+         „X“ erscheint: keine Taste drücken
+      </div>`;
+  } else {
+    stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
+  }
+}
 
     // Übungsdaten NICHT speichern
     if (!inPractice) {
@@ -158,9 +168,15 @@ function displayProbe(probe) {
       });
     }
 
-    setTimeout(nextTrial, 500);
-  }
+    if (error) {
+}
 
+if (inPractice) {
+  setTimeout(nextTrial, 2000);  
+} else {
+  setTimeout(nextTrial, 500);   
+}
+    
   document.addEventListener("keydown", handleResponse);
   responseTimeout = setTimeout(() => {
     document.removeEventListener("keydown", handleResponse);
@@ -468,6 +484,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
