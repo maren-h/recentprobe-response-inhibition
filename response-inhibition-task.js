@@ -5,6 +5,12 @@ let arrowSymbol = { left: '←', right: '→' };
 
 let lastKeyCode = null;
 let showErrorUntil = 0;
+let responseTimestampMs = null; 
+let currentTrialSSD = null;
+let experimentStartMs = null;
+let experimentDateStr = null;
+let experimentStartTimeStr = null;
+
   
   
 // Stimulusgrößen (wie Exp.1: 48px)
@@ -53,11 +59,19 @@ let exp2HasStarted = false;
 let revealCanvasRequested = false; 
 
 const nowMs = () => (typeof millis === 'function' ? millis() : performance.now());
+const pad = n => String(n).padStart(2,'0');
+function fmtDate(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function fmtTime(d){ return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
 
 function startSecondExperiment() {
   if (exp2HasStarted) return;
   exp2HasStarted = true;
   revealCanvasRequested = true;
+
+  const start = new Date();
+  experimentStartMs = start.getTime();
+  experimentDateStr = fmtDate(start);       
+  experimentStartTimeStr = fmtTime(start);
 
   (function bootWhenReady() {
     const canvasEl = document.querySelector('canvas');
@@ -110,7 +124,8 @@ function keyPressed() {
     // Do nothing
  } else if (state === 'stimulus' && !responded) {
   responded = true;
-  lastKeyCode = keyCode;   
+  lastKeyCode = keyCode; 
+  responseTimestampMs = nowMs();
   handleResponse();
   state = 'interTrial';
   trialStartTime = nowMs();
@@ -204,6 +219,7 @@ function draw() {
     if (elapsed >= fixationDuration) {
       state = 'stimulus';
       trialStartTime = nowMs();
+      currentTrialSSD = ssd;
     }
   } else if (state === 'stimulus') {
     let t = elapsed;
@@ -378,8 +394,6 @@ if (practiceMode) {
   pop();
 }
 
-
-
 function handleResponse() {
   if (!currentTrial) return;
 
@@ -387,6 +401,16 @@ function handleResponse() {
     if (responded) ssd = Math.max(minSSD, ssd - ssdStep);
     else           ssd = Math.min(maxSSD, ssd + ssdStep);
   }
+
+ let pressedKey = 'none';
+  if (responded) {
+    pressedKey = (lastKeyCode === LEFT_ARROW)  ? 'left'
+              : (lastKeyCode === RIGHT_ARROW) ? 'right'
+              : 'other';
+  }
+  let rt_ms = responded && responseTimestampMs != null
+              ? Math.round(responseTimestampMs - trialStartTime)
+              : null;
 
   let isError = false;
   let correct = false;
@@ -402,11 +426,7 @@ function handleResponse() {
      
       isError = true;
     } else {
-      
-      const pressedDir = (lastKeyCode === LEFT_ARROW) ? 'left'
-                        : (lastKeyCode === RIGHT_ARROW) ? 'right'
-                        : 'other';
-      correct = (pressedDir === expectedDir);
+      correct = (pressedKey === expectedDir);
       isError = !correct;
     }
   }
@@ -434,19 +454,39 @@ function handleResponse() {
       trial: setTrialIndex + 1,
       type: currentTrial.type,
       direction: currentTrial.direction,
+      pressedKey: pressedKey,
       responded: responded,
-      ellipseColor: ellipseShouldBeBlue ? 'blue' : 'white',
-      correct: !!correct
+      correct: !!correct,
+      rt_ms: rt_ms,
+      ssd: currentTrialSSD,
+      ellipseColor: ellipseShouldBeBlue ? 'blue' : 'white'
     });
   }
 }
 
 function downloadCSV() {
-  let csv = "Set;Trial;Type;Direction;Responded;EllipseColor\n";
+// Endzeit & Gesamtdauer
+  const end = new Date();
+  const experimentEndMs = end.getTime();
+  const totalMs = experimentStartMs ? (experimentEndMs - experimentStartMs) : null;
+
+  let lines = [];
+  // Meta-Zeile (nur einmal)
+  lines.push(`#${experimentDateStr};${experimentStartTimeStr};${totalMs != null ? totalMs : ""}`);
+
+  // Kopfzeile der Trial-Tabelle
+  lines.push("Set;Trial;Type;Direction;PressedKey;Responded;Correct;RT_ms;SSD;EllipseColor");
+ 
   fullData.forEach(d => {
-    csv += `${d.set};${d.trial};${d.type};${d.direction};${d.responded};${d.ellipseColor}\n`;
+    const rtStr  = (d.rt_ms == null) ? "" : d.rt_ms;
+    const ssdStr = (d.ssd == null)   ? "" : d.ssd;
+    lines.push([
+      d.set, d.trial, d.type, d.direction, d.pressedKey,
+      d.responded, d.correct, rtStr, ssdStr, d.ellipseColor
+    ].join(";"));
   });
 
+  const csv = lines.join("\n");
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -473,6 +513,7 @@ function shuffle(array) {
   window.draw = draw;         // p5 braucht globales draw()
   window.keyPressed = keyPressed; // p5 ruft globales keyPressed() auf
 })();
+
 
 
 
