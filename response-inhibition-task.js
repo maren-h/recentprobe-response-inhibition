@@ -280,9 +280,11 @@ function drawPracticeEndScreen_Exp2() {
   textWrap(WORD);
   const margin = 50;
   const wrap = width - 2 * margin;
-  const textLines = `Die Übungsdurchgänge sind beendet.\n\n
+  const textLines = `Der Übungsblock ist beendet.\n\n
   Jetzt startet der erste richtige Durchgang von Experiment 2.\n\n
-  Bitte reagieren Sie weiterhin so schnell und genau wie möglich.\n\n
+  Zur Erinnerung: Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.\n\n
+  Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
+  Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.\n\n
   Drücken Sie eine beliebige Taste, um zu beginnen.`;
   text(textLines, margin, 150, wrap);
 }
@@ -296,7 +298,12 @@ function drawBreakScreen() {
   const wrap = width - 2 * margin;
   const textLines = `Sie haben ${currentSet} von ${totalSets} Blöcken abgeschlossen.\n\n
   Wenn Sie möchten, können Sie eine kurze Pause machen.\n\n
-  Wenn Sie bereit sind, drücken Sie eine beliebige Taste, um fortzufahren.`;
+  Wenn Sie wieder bereit sind, drücken Sie eine beliebige Taste, um fortzufahren.`\n\n
+  Zur Erinnerung: Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.\n\n
+  Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
+  Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.\n\n
+  Drücken Sie eine beliebige Taste, um zu beginnen.`;
+  
   text(textLines, margin, 150, wrap);
 }
 
@@ -307,7 +314,8 @@ function drawEndScreen() {
   textWrap(WORD);
   const margin = 50;
   const wrap = width - 2 * margin;
-  const textLines = `Vielen Dank für Ihre Teilnahme an dieser Studie!\n\nWenden Sie sich nun an die Versuchsleitung.`;
+  const textLines = `Vielen Dank für Ihre Teilnahme an dieser Studie!\n\n 
+    Wenden Sie sich nun an die Versuchsleitung.`;
   text(textLines, margin, 150, wrap);
 }
 
@@ -387,6 +395,7 @@ function shuffle(array) {
   window.draw = draw;         // p5 braucht globales draw()
   window.keyPressed = keyPressed; // p5 ruft globales keyPressed() auf
 })();
+
 
 
 
