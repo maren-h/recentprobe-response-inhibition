@@ -3,6 +3,10 @@
 let fixationText = '+';
 let arrowSymbol = { left: '←', right: '→' };
 
+let lastKeyCode = null;
+let showErrorUntil = 0;
+  
+  
 // Stimulusgrößen (wie Exp.1: 48px)
 const FIXATION_PX = 48;
 const ARROW_PX    = 48;
@@ -104,12 +108,13 @@ function keyPressed() {
     startSet();
   } else if (state === 'end') {
     // Do nothing
-  } else if (state === 'stimulus' && !responded) {
-    responded = true;
-    handleResponse();
-    state = 'interTrial';
-    trialStartTime = nowMs();
-  }
+ } else if (state === 'stimulus' && !responded) {
+  responded = true;
+  lastKeyCode = keyCode;   
+  handleResponse();
+  state = 'interTrial';
+  trialStartTime = nowMs();
+}
 }
 
 function generateTrials() {
@@ -144,7 +149,7 @@ function generateTrials() {
 
 function startSet() {
   if (practiceMode) {
-    // einmaliger Übungsblock mit 10 Trials
+    // einmaliger Übungsblock mit 20 Trials
     const full = generateTrials();
     trialList = full.slice(0, practiceTrials);
     setTrialIndex = 0;
@@ -222,13 +227,21 @@ function draw() {
     drawEllipse(ellipseShouldBeBlue ? 'blue' : 'white');
     drawFixation();
     drawArrow(arrowSymbol[arrowDir], arrowDisplayOffset);
-
+ 
+    if (nowMs() < showErrorUntil) {
+    drawErrorMark();
+  }
+    
     if (t >= stimulusDuration && !responded) {
       handleResponse();
       state = 'interTrial';
       trialStartTime = nowMs();
     }
   } else if (state === 'interTrial') {
+    if (nowMs() < showErrorUntil) {
+    drawErrorMark();
+  }
+    
     if (elapsed >= 0.5) {
       setTrialIndex++;
       const endOfThisList = setTrialIndex >= trialList.length;
@@ -342,6 +355,31 @@ function drawArrow(symbol, xOffset) {
   text(symbol, width / 2 + xOffset, height / 2);
 }
 
+function drawErrorMark() {
+  push();
+  textAlign(CENTER, CENTER);
+  textSize(ARROW_PX);
+  fill(255, 0, 0);
+  noStroke();
+  text('!', width / 2, height / 2 + 60);
+  pop();
+}
+
+if (practiceMode) {
+    textSize(16);
+    fill(255); // weiß
+    let reminder = "Zur Erinnerung:\n\n
+    Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.\n\n
+    Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
+    Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.";
+    text(reminder, width / 2, height / 2 + 120); 
+  }
+
+  pop();
+}
+
+
+
 function handleResponse() {
   if (!currentTrial) return;
 
@@ -350,15 +388,55 @@ function handleResponse() {
     else           ssd = Math.min(maxSSD, ssd + ssdStep);
   }
 
-  // Übungsdaten NICHT speichern
-  if (currentSet > 0) {
+  let isError = false;
+  let correct = false;
+
+  if (currentTrial.type === 'congruent_go' || currentTrial.type === 'incongruent_go') {
+   
+    let expectedDir = currentTrial.direction; 
+    if (currentTrial.type === 'incongruent_go') {
+      expectedDir = (expectedDir === 'left') ? 'right' : 'left';
+    }
+
+    if (!responded) {
+     
+      isError = true;
+    } else {
+      
+      const pressedDir = (lastKeyCode === LEFT_ARROW) ? 'left'
+                        : (lastKeyCode === RIGHT_ARROW) ? 'right'
+                        : 'other';
+      correct = (pressedDir === expectedDir);
+      isError = !correct;
+    }
+  }
+
+  if (currentTrial.type === 'nogo' || currentTrial.type === 'stop') {
+    if (responded) {
+      isError = true;
+      correct = false;
+    } else {
+      correct = true;
+    }
+  }
+
+  if (isError) {
+    const dur = practiceMode ? 2000 : 500;   
+    showErrorUntil = nowMs() + dur;
+  } else {
+    showErrorUntil = 0;
+  }
+
+ 
+  if (currentSet > 0) { 
     fullData.push({
       set: currentSet,
       trial: setTrialIndex + 1,
       type: currentTrial.type,
       direction: currentTrial.direction,
       responded: responded,
-      ellipseColor: ellipseShouldBeBlue ? 'blue' : 'white'
+      ellipseColor: ellipseShouldBeBlue ? 'blue' : 'white',
+      correct: !!correct
     });
   }
 }
@@ -395,6 +473,7 @@ function shuffle(array) {
   window.draw = draw;         // p5 braucht globales draw()
   window.keyPressed = keyPressed; // p5 ruft globales keyPressed() auf
 })();
+
 
 
 
