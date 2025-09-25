@@ -19,7 +19,7 @@ const minSSD  = 0.020;
 const maxSSD  = 0.900;
 
 // Trial-Setup
-const trialsPerSet = 80;
+const trialsPerSet = 20;
 const totalSets    = 3;
 
 
@@ -387,4 +387,5 @@ function shuffle(array) {
   window.draw = draw;         // p5 braucht globales draw()
   window.keyPressed = keyPressed; // p5 ruft globales keyPressed() auf
 })();
+
 
