@@ -71,7 +71,7 @@ let secondInstructionPages = [
   `Experiment 2<br><br>
    Willkommen zum zweiten Experiment. Drücken Sie eine beliebige Taste, um sich durch die Instruktionen zu klicken.`,
   
-   Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz innerhalb einer Ellipse. Bitte schauen Sie darauf.`,
+   `Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz innerhalb einer Ellipse. Bitte schauen Sie darauf.`,
 
   `Als nächstes erscheint rechts oder links vom Fixationskreuz ein Pfeil.<br>
    Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.<br><br>
@@ -516,6 +516,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
