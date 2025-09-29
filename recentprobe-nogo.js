@@ -77,10 +77,10 @@ let secondInstructionPages = [
    Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.<br><br>
    <img src="ellipseweiss.png" style="max-width:400px; display:block; margin:auto;">`,
 
-  `In manchen Durchgängen erscheint die Ellipse in Blau. Dann dürfen Sie **keine** Taste drücken.<br><br>
+  `In manchen Durchgängen erscheint die Ellipse in Blau. Dann dürfen Sie keine Taste drücken.<br><br>
    <img src="ellipseblau.png" style="max-width:400px; display:block; margin:auto;">`,
 
-  `In manchen Durchgängen erscheint die Ellipse zuerst in Weiß und wechselt dann zu Blau. Auch dann dürfen Sie **keine** Taste drücken.`,
+  `In manchen Durchgängen erscheint die Ellipse zuerst in Weiß und wechselt dann zu Blau. Auch dann dürfen Sie keine Taste drücken.`,
 
   `Wenn Sie einen Fehler machen, erscheint ein rotes Ausrufezeichen (!) auf dem Bildschirm.<br><br>
    Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
@@ -235,7 +235,7 @@ function showBreakScreen() {
   stimulusDiv.innerHTML = `Block ${currentBlock} ist abgeschlossen.<br><br>
       Wenn Sie möchten, können Sie eine kurze Pause machen.<br><br>
       Wenn Sie wieder bereit sind, drücken Sie eine beliebige Taste, um mit Block ${currentBlock + 1} fortzufahren. <br><br>
-      Zur Erinnerung: Ihre Aufgabe ist es zu entscheiden, ob der einzelne Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
+      Zur Erinnerung: Ihre Aufgabe ist es, zu entscheiden, ob der einzelne Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
    Wenn ja, drücken Sie die rechte Pfeiltaste (→)<br>
    Wenn nein, drücken Sie die linke Pfeiltaste (←)<br>
    Drücken Sie keine Taste, wenn ein "X" erscheint.`;
@@ -520,6 +520,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
