@@ -78,7 +78,7 @@ let secondInstructionPages = [
    <img src="ellipseweiß.png" style="max-width:400px; display:block; margin:auto;"`,
 
   `In manchen Durchgängen erscheint die Ellipse in Blau. Dann dürfen Sie **keine** Taste drücken.<br><br>
-   <img src="ellipseblau.png" style="max-width:400px; display:block; margin:auto;"`
+   <img src="ellipseblau.png" style="max-width:400px; display:block; margin:auto;">`
 
   `In manchen Durchgängen erscheint die Ellipse zuerst in Weiß und wechselt dann zu Blau. Auch dann dürfen Sie **keine** Taste drücken.`,
 
@@ -518,6 +518,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
