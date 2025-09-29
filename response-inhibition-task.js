@@ -378,19 +378,19 @@ function drawErrorMark() {
   fill(255, 0, 0);
   noStroke();
   text('!', width / 2, height / 2 + 60);
-  pop();
-}
 
-if (practiceMode) {
+  // Erinnerungstext nur im Übungsblock
+  if (practiceMode) {
     textSize(16);
-    fill(255); // weiß
-    let reminder = "Zur Erinnerung:\n\n
-    Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.\n\n
-    Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
-    Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.";
-    text(reminder, width / 2, height / 2 + 120); 
-  }
+    fill(255);
+    const reminder = `Zur Erinnerung:
 
+Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.
+
+Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
+Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.`;
+    text(reminder, width / 2, height / 2 + 120);
+  }
   pop();
 }
 
@@ -508,15 +508,8 @@ function shuffle(array) {
   return array;
 }
 
-  window.startSecondExperiment = startSecondExperiment; // wird von Exp 1 aufgerufen
-  window.setup = setup;       // p5 braucht globales setup()
-  window.draw = draw;         // p5 braucht globales draw()
-  window.keyPressed = keyPressed; // p5 ruft globales keyPressed() auf
+  window.startSecondExperiment = startSecondExperiment; 
+  window.setup = setup;       
+  window.draw = draw;         
+  window.keyPressed = keyPressed; 
 })();
-
-
-
-
-
-
-
