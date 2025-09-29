@@ -75,10 +75,10 @@ let secondInstructionPages = [
 
   `Als nächstes erscheint rechts oder links vom Fixationskreuz ein Pfeil.<br>
    Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.<br><br>
-   <img src="ellipseweiß.png" style="max-width:400px; display:block; margin:auto;"`,
+   <img src="ellipseweiß.png" style="max-width:400px; display:block; margin:auto;">`,
 
   `In manchen Durchgängen erscheint die Ellipse in Blau. Dann dürfen Sie **keine** Taste drücken.<br><br>
-   <img src="ellipseblau.png" style="max-width:400px; display:block; margin:auto">`
+   <img src="ellipseblau.png" style="max-width:400px; display:block; margin:auto;">`
 
   `In manchen Durchgängen erscheint die Ellipse zuerst in Weiß und wechselt dann zu Blau. Auch dann dürfen Sie **keine** Taste drücken.`,
 
@@ -518,6 +518,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
