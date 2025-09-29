@@ -122,11 +122,12 @@ function displayMemorySet(letters, duration, callback) {
 function displayProbe(probe) {
   stimulusDiv.textContent = probe;
   const start = Date.now();
-  responseGiven = false;
+  let responseGiven = false;
 
   function handleResponse(e) {
     if (responseGiven) return;
     responseGiven = true;
+
     const rt = Date.now() - start;
     let correct = false;
     let error = false;
@@ -141,7 +142,7 @@ function displayProbe(probe) {
       correct = false;
       error = true;
     } else {
-     if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
         const isMatch = trial.condition.startsWith("match");
         correct = (isMatch && e.key === "ArrowRight") || (!isMatch && e.key === "ArrowLeft");
         error = !correct;
@@ -152,60 +153,59 @@ function displayProbe(probe) {
 
     if (error) {
       if (inPractice) {
-    stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
-      <div style="margin-top:10px; font-size:16px; color:black;">
-        Zur Erinnerung:<br>
-         einzelner Buchstabe kam auch bei den sechs Buchstaben vor: → rechte Pfeiltaste <br>
-         einzelner Buchstabe kam nicht bei den sechs Buchstaben vor: ← linke Pfeiltaste <br>
-         „X“ erscheint: keine Taste drücken
-      </div>`;
-  } else {
-    stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
+        stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
+          <div style="margin-top:10px; font-size:16px; color:black;">
+            Zur Erinnerung:<br>
+            einzelner Buchstabe kam auch bei den sechs Buchstaben vor: → rechte Pfeiltaste <br>
+            einzelner Buchstabe kam nicht bei den sechs Buchstaben vor: ← linke Pfeiltaste <br>
+            „X“ erscheint: keine Taste drücken
+          </div>`;
+      } else {
+        stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
+      }
+    }
+
+ 
+    if (!inPractice) {
+      data.push({
+        trial: currentTrial + 1,
+        condition: trial.condition,
+        isNogo: trial.isNogo,
+        probe: probe,
+        response: e.key || "none",
+        correct: correct,
+        rt: rt,
+        memorySet: memSetStr
+      });
+    }
+
+    setTimeout(nextTrial, inPractice ? 2000 : 500);
   }
-}
-  
 
-
-// Übungsdaten NICHT speichern
-if (!inPractice) {
-  data.push({
-    trial: currentTrial+1,
-    condition: trial.condition,
-    isNogo: trial.isNogo,
-    probe: probe,
-    response: e.key,
-    correct: correct,
-    rt: rt,
-    memorySet:memSetStr
-  });
-}
-if (inPractice) {
-  setTimeout(nextTrial, 2000);  
-} else {
-  setTimeout(nextTrial, 500);   
-}
-    
   document.addEventListener("keydown", handleResponse);
+
   responseTimeout = setTimeout(() => {
     document.removeEventListener("keydown", handleResponse);
     if (!responseGiven) {
-      // Übungsdaten NICHT speichern
+      const trial = trials[currentTrial];
+      const memSetStr = trial.memorySet.join("");
+
       if (!inPractice) {
         data.push({
-          trial: currentTrial+1,
-          condition: trials[currentTrial].condition,
-          isNogo: trials[currentTrial].isNogo,
+          trial: currentTrial + 1,
+          condition: trial.condition,
+          isNogo: trial.isNogo,
           probe: probe,
           response: "none",
           correct: probe === "X",
           rt: "none",
-          memorySet:memSetStr
+          memorySet: memSetStr
         });
       }
       nextTrial();
     }
   }, 2000);
-  }
+}
 
 
 function nextTrial() {
@@ -520,6 +520,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
