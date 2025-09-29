@@ -179,7 +179,7 @@ function displayProbe(probe) {
       });
     }
 
-    setTimeout(nextTrial, inPractice ? 5000 : 500);
+    setTimeout(nextTrial, inPractice ? 6000 : 500);
   }
 
   document.addEventListener("keydown", handleResponse);
@@ -520,6 +520,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
