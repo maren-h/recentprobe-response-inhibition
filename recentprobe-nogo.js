@@ -52,14 +52,14 @@ let instructionPages = [
   `Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz in der Mitte des Bildschirms. Bitte schauen Sie darauf.`,
 
   `Anschließend erscheinen wie auf dem Beispielbild sechs Buchstaben. Merken Sie sich diese so gut wie möglich.<br><br>
-    <img src="memoryset.png" style="max-width:400px; display:block; margin:auto;"`,
+    <img src="memoryset.png" style="max-width:400px; display:block; margin:auto;">`,
 
   `Als nächstes erscheint ein einzelner Buchstabe.<br><br>
   Ihre Aufgabe ist es zu entscheiden, ob dieser Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
    Wenn ja, drücken Sie die rechte Pfeiltaste (→)<br>
    Wenn nein, drücken Sie die linke Pfeiltaste (←)`,
 
-  `In manchen Durchgängen erscheint ein „X“. Dann dürfen Sie **keine** Taste drücken (No-Go).`,
+  `In manchen Durchgängen erscheint ein „X“. Dann dürfen Sie keine Taste drücken.`,
 
   `Wenn Sie einen Fehler machen, erscheint ein rotes Ausrufezeichen (!) auf dem Bildschirm.<br><br>
    Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
@@ -75,7 +75,7 @@ let secondInstructionPages = [
 
   `Als nächstes erscheint rechts oder links vom Fixationskreuz ein Pfeil.<br>
    Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.<br><br>
-   <img src="ellipseweiß.png" style="max-width:400px; display:block; margin:auto;">`,
+   <img src="ellipseweiss.png" style="max-width:400px; display:block; margin:auto;">`,
 
   `In manchen Durchgängen erscheint die Ellipse in Blau. Dann dürfen Sie **keine** Taste drücken.<br><br>
    <img src="ellipseblau.png" style="max-width:400px; display:block; margin:auto;">`,
@@ -179,7 +179,7 @@ function displayProbe(probe) {
       });
     }
 
-    setTimeout(nextTrial, inPractice ? 2000 : 500);
+    setTimeout(nextTrial, inPractice ? 5000 : 500);
   }
 
   document.addEventListener("keydown", handleResponse);
@@ -520,6 +520,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
