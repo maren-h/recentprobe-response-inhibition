@@ -162,6 +162,8 @@ function displayProbe(probe) {
     stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
   }
 }
+  }}
+
 
 // Übungsdaten NICHT speichern
 if (!inPractice) {
@@ -172,7 +174,7 @@ if (!inPractice) {
     probe: probe,
     response: e.key,
     correct: correct,
-    rt: rt
+    rt: rt,
     memorySet:memSetStr
   });
 }
@@ -195,14 +197,14 @@ if (inPractice) {
           probe: probe,
           response: "none",
           correct: probe === "X",
-          rt: "none"
+          rt: "none",
           memorySet:memSetStr
         });
       }
       nextTrial();
     }
   }, 2000);
-}
+
 
 function nextTrial() {
   currentTrial++;
@@ -516,9 +518,6 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
-
-
-
 
 
 
