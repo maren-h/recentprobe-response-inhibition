@@ -135,14 +135,15 @@ function displayProbe(probe) {
     clearTimeout(responseTimeout);
 
     const trial = trials[currentTrial];
+    const memSetStr = trial.memorySet.join("");
 
     if (probe === "X") {
       correct = false;
       error = true;
     } else {
-      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        correct = ((trial.condition.startsWith("match") && e.key === "ArrowRight") ||
-                   (trial.condition.startsWith("nonmatch") && e.key === "ArrowLeft"));
+     if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        const isMatch = trial.condition.startsWith("match");
+        correct = (isMatch && e.key === "ArrowRight") || (!isMatch && e.key === "ArrowLeft");
         error = !correct;
       } else {
         error = true;
@@ -162,7 +163,7 @@ function displayProbe(probe) {
     stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
   }
 }
-  }}
+  
 
 
 // Übungsdaten NICHT speichern
@@ -204,6 +205,7 @@ if (inPractice) {
       nextTrial();
     }
   }, 2000);
+  }
 
 
 function nextTrial() {
@@ -518,6 +520,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
