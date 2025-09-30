@@ -64,13 +64,28 @@ function fmtDate(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.g
 function fmtTime(d){ return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
 
 function startSecondExperiment() {
-  if (exp2HasStarted) return;
+  if (exp2HasStarted) {
+  }
   exp2HasStarted = true;
   revealCanvasRequested = true;
 
+  practiceMode = true;                 
+  practiceJustFinished = false;
+  currentSet = 0;                     
+  setTrialIndex = 0;
+  trialList = [];
+  fullData = [];
+
+  responded = false;
+  stopPresented = false;
+  ellipseShouldBeBlue = false;
+  showErrorUntil = 0;
+
+  ssd = 0.220;
+
   const start = new Date();
   experimentStartMs = start.getTime();
-  experimentDateStr = fmtDate(start);       
+  experimentDateStr = fmtDate(start);
   experimentStartTimeStr = fmtTime(start);
 
   (function bootWhenReady() {
@@ -78,18 +93,13 @@ function startSecondExperiment() {
     const p5Ready  = (typeof randomGaussian === 'function') && (typeof millis === 'function');
     if (canvasEl && p5Ready) {
       canvasEl.style.display = 'block';
-
-    
-      state = 'intro';
-      responded = false;
-      stopPresented = false;
-      ellipseShouldBeBlue = false;
+      state = 'intro';                 // Startfolie von Exp. 2
+      trialStartTime = nowMs();
     } else {
       setTimeout(bootWhenReady, 30);
     }
   })();
 }
-
 
 function setup() {
   const c = createCanvas(windowWidth, windowHeight);
@@ -513,3 +523,4 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
