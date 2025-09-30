@@ -63,12 +63,22 @@ const pad = n => String(n).padStart(2,'0');
 function fmtDate(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
 function fmtTime(d){ return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
 
-function startSecondExperiment() {
-  if (exp2HasStarted) {
+function enterFullscreen() {
+  const el  = document.documentElement;
+  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+  if (req) {
+    try { req.call(el, { navigationUI: "hide" }); }
+    catch { req.call(el); }
   }
+}
+  
+  function startSecondExperiment() {
+  if (exp2HasStarted) return;
   exp2HasStarted = true;
   revealCanvasRequested = true;
 
+  enterFullscreen();
+    
   practiceMode = true;                 
   practiceJustFinished = false;
   currentSet = 0;                     
@@ -102,7 +112,7 @@ function startSecondExperiment() {
 }
 
 function setup() {
-  const c = createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth, windowHeight);
 
   if (revealCanvasRequested) c.elt.style.display = 'block';
   else c.elt.style.display = 'none';
@@ -125,13 +135,11 @@ function keyPressed() {
   if (state === 'intro') {
     startSet();
   } else if (state === 'practiceEnd') {
-    // erster echter Block
     practiceJustFinished = false;
     startSet();
   } else if (state === 'break') {
     startSet();
   } else if (state === 'end') {
-    // Do nothing
  } else if (state === 'stimulus' && !responded) {
   responded = true;
   lastKeyCode = keyCode; 
@@ -523,4 +531,5 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
 
