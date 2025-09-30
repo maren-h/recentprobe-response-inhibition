@@ -129,8 +129,6 @@ function displayProbe(probe) {
     responseGiven = true;
 
     const rt = Date.now() - start;
-    let correct = false;
-    let error = false;
 
     document.removeEventListener("keydown", handleResponse);
     clearTimeout(responseTimeout);
@@ -138,34 +136,23 @@ function displayProbe(probe) {
     const trial = trials[currentTrial];
     const memSetStr = trial.memorySet.join("");
 
+    // Korrektheit bestimmen
+    let correct = false;
+    let error = false;
+
     if (probe === "X") {
       correct = false;
       error = true;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      const isMatch = trial.condition.startsWith("match");
+      correct = (isMatch && e.key === "ArrowRight") || (!isMatch && e.key === "ArrowLeft");
+      error = !correct;
     } else {
-      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        const isMatch = trial.condition.startsWith("match");
-        correct = (isMatch && e.key === "ArrowRight") || (!isMatch && e.key === "ArrowLeft");
-        error = !correct;
-      } else {
-        error = true;
-      }
+      correct = false;
+      error = true;
     }
 
-    if (error) {
-      if (inPractice) {
-        stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
-          <div style="margin-top:10px; font-size:16px; color:black;">
-            Zur Erinnerung:<br>
-            einzelner Buchstabe kam auch bei den sechs Buchstaben vor: → rechte Pfeiltaste <br>
-            einzelner Buchstabe kam nicht bei den sechs Buchstaben vor: ← linke Pfeiltaste <br>
-            „X“ erscheint: keine Taste drücken
-          </div>`;
-      } else {
-        stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
-      }
-    }
-
- 
+    
     if (!inPractice) {
       data.push({
         trial: currentTrial + 1,
@@ -179,16 +166,34 @@ function displayProbe(probe) {
       });
     }
 
-    setTimeout(nextTrial, inPractice ? 6000 : 500);
+    if (inPractice && error) {
+     
+      stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
+        <div style="margin-top:10px; font-size:16px; color:black;">
+          Zur Erinnerung:<br>
+          einzelner Buchstabe kam auch bei den sechs Buchstaben vor: → rechte Pfeiltaste <br>
+          einzelner Buchstabe kam nicht bei den sechs Buchstaben vor: ← linke Pfeiltaste <br>
+          „X“ erscheint: keine Taste drücken
+        </div>`;
+      setTimeout(nextTrial, 6000);
+    } else {
+     
+      stimulusDiv.textContent = "";
+      nextTrial();
+    }
   }
 
   document.addEventListener("keydown", handleResponse);
 
+  
   responseTimeout = setTimeout(() => {
     document.removeEventListener("keydown", handleResponse);
     if (!responseGiven) {
       const trial = trials[currentTrial];
       const memSetStr = trial.memorySet.join("");
+
+      const wasCorrectNoGo = (probe === "X"); 
+      const isErrorMiss   = !wasCorrectNoGo;  
 
       if (!inPractice) {
         data.push({
@@ -197,17 +202,30 @@ function displayProbe(probe) {
           isNogo: trial.isNogo,
           probe: probe,
           response: "none",
-          correct: probe === "X",
+          correct: wasCorrectNoGo,
           rt: "none",
           memorySet: memSetStr
         });
       }
-      nextTrial();
+
+      if (inPractice && isErrorMiss) {
+        stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
+          <div style="margin-top:10px; font-size:16px; color:black;">
+            Zur Erinnerung:<br>
+            einzelner Buchstabe kam auch bei den sechs Buchstaben vor: → rechte Pfeiltaste <br>
+            einzelner Buchstabe kam nicht bei den sechs Buchstaben vor: ← linke Pfeiltaste <br>
+            „X“ erscheint: keine Taste drücken
+          </div>`;
+        setTimeout(nextTrial, 6000);
+      } else {
+        stimulusDiv.textContent = "";
+        nextTrial();
+      }
     }
   }, 2000);
 }
 
-
+    
 function nextTrial() {
   currentTrial++;
 
@@ -520,6 +538,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
