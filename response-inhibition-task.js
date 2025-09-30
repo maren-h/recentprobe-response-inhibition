@@ -112,10 +112,10 @@ function enterFullscreen() {
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  const c = createCanvas(windowWidth, windowHeight); // ← c anlegen!
 
   if (revealCanvasRequested) c.elt.style.display = 'block';
-  else c.elt.style.display = 'none';
+  else                       c.elt.style.display = 'none';
 
   textAlign(LEFT, TOP);
   textWrap(WORD);
@@ -123,9 +123,9 @@ function setup() {
   frameRate(60);
   fill(255);
 
-  
-  state = exp2HasStarted ? 'intro' : 'intro';
+  state = 'intro';
 }
+
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
@@ -377,7 +377,7 @@ function drawFixation() {
 function drawEllipse(colorName) {
   noFill();
   strokeWeight(3);
-  stroke(colorName === 'blue' ? color(0, 0, 255) : 255);
+  stroke(colorName === 'blue' ? color(0, 0, 255) : color(255));
   ellipse(width / 2, height / 2, ellipseW, ellipseH);
 }
 
@@ -397,7 +397,7 @@ function drawErrorMark() {
   noStroke();
   text('!', width / 2, height / 2 + 60);
 
-  // Erinnerungstext nur im Übungsblock
+  
   if (practiceMode) {
     textSize(16);
     fill(255);
@@ -531,5 +531,6 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
 
 
