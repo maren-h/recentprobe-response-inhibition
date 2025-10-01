@@ -538,13 +538,13 @@ function downloadCSV() {
   lines.push(`#${experimentDateStr};${experimentStartTimeStr};${totalMs != null ? totalMs : ""}`);
 
   // Kopfzeile der Trial-Tabelle
-  lines.push("Set;Trial;Type;Direction;PressedKey;Responded;Correct;RT_ms;SSD;EllipseColor");
+  lines.push("recordId;Set;Trial;Type;Direction;PressedKey;Responded;Correct;RT_ms;SSD;EllipseColor");
  
   fullData.forEach(d => {
     const rtStr  = (d.rt_ms == null) ? "" : d.rt_ms;
     const ssdStr = (d.ssd == null)   ? "" : d.ssd;
     lines.push([
-      d.set, d.trial, d.type, d.direction, d.pressedKey,
+      participantId, d.set, d.trial, d.type, d.direction, d.pressedKey,
       d.responded, d.correct, rtStr, ssdStr, d.ellipseColor
     ].join(";"));
   });
@@ -576,6 +576,7 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
 
 
 
