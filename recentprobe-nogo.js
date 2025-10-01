@@ -136,7 +136,7 @@ function displayProbe(probe) {
     const trial = trials[currentTrial];
     const memSetStr = trial.memorySet.join("");
 
-    // Korrektheit bestimmen
+    
     let correct = false;
     let error = false;
 
@@ -177,14 +177,15 @@ function displayProbe(probe) {
         </div>`;
       setTimeout(nextTrial, 6000);
     } else if (!inPractice && error) {
-  // TESTBLOCK: kurzes „!“ (0.5 s)
+
   stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
-  setTimeout(nextTrial, 500);             // <- direkt 500 ms
+  setTimeout(nextTrial, 500);            
 } else {
-  // korrekt → sofort weiter
+  
   stimulusDiv.textContent = "";
   nextTrial();
 }
+  }
 
   document.addEventListener("keydown", handleResponse);
 
@@ -387,7 +388,7 @@ function runTrial() {
     }
   }
 
-  // Sicherheits-Fallbacks
+ 
   if (!memorySet) {
     console.warn("memorySet war leer – Default gezogen");
     memorySet = pickRandomLetters(["X"], 6);
@@ -424,7 +425,7 @@ function runTrial() {
   memoryHistory.push(memorySet);
   if (memoryHistory.length > 3) memoryHistory.shift();
 
-  // Trials starten IMMER mit fester Stimulusgröße
+
   setStimulusTextSize(STIMULUS_PX);
 
   displayFixation(1500, () => {
@@ -453,7 +454,7 @@ function downloadCSV() {
 
   const lines = [];
 
-  // Meta-Zeile (nur 1x)
+ 
   lines.push(`#${expDateStr || ""};${expStartTimeStr || ""};${totalMs}`);
 
   lines.push("trial;condition;isNogo;probe;response;correct;rt;memorySet");
@@ -542,23 +543,8 @@ function secondInstructionPageHandler() {
     stimulusDiv.innerHTML = secondInstructionPages[currentSecondInstructionPage];
     document.addEventListener("keydown", secondInstructionPageHandler);
   } else {
-    // alle Seiten durch → Experiment 2 starten
     currentSecondInstructionPage = 0;
     stimulusDiv.style.display = "none";
     startSecondExperiment();
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
