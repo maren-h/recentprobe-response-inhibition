@@ -443,17 +443,16 @@ function drawErrorMark() {
 
   
   if (practiceMode) {
-    const textStartY = baseY + 140;
+    const textStartY = baseY + 160;
     textSize(16);
     fill(255);
     textAlign(CENTER, TOP);                  
     const reminder = `Zur Erinnerung:
 
 Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.
-
 Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
 Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.`;
-    text(reminder, width / 2, textstartY);
+    text(reminder, width / 2, textStartY);
   }
   pop();
 }
@@ -577,6 +576,7 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
 
 
 
