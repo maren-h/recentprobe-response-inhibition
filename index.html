@@ -10,8 +10,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      background: #000;
+      height: 100vh;
       overflow: hidden;
     }
 
@@ -27,33 +26,37 @@
     }
 
     
-  #stimulus {
-    position: fixed;
-    inset: 0;            
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #000;     
-    color: #fff;
-    z-index: 0;
-  }
+    #stimulus {
+      white-space: pre;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      user-select: none;
+      font-size: 48px;   /* Basis (Trials), Instruktionsscreens setzen per JS auf 20px */
+      line-height: 1;
+      z-index: 10;
+    }
 
-  #download-btn {
-    position: fixed;
-    top: 12px;
-    right: 12px;
-    z-index: 3;
-  }
+    #download-btn {
+      font-size: 24px;
+      display: none;
+      margin-top: 30px;
+      position: fixed;
+      top: 60%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
 
   
-  canvas {
-    position: fixed;
-    inset: 0;
-    display: none;       
-    z-index: 2;
-  }
+    canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      display: none;
+    }
   </style>
-  
 </head>
 <body>
   <div id="stimulus">Loading...</div>
@@ -61,10 +64,15 @@
 
   <script src="recentprobe-nogo.js?v=2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-  <script src="response-inhibition-task.js?v=3"></script>
+  <script src="response-inhibition-task.js?v=2"></script>
   
 </body>
 </html>
+
+
+    
+ 
+
 
 
 
