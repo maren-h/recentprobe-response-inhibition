@@ -434,7 +434,7 @@ function drawArrow(symbol, xOffset) {
 
 function drawErrorMark() {
   push();
-  const baseY = Math.round(height * 0.65);
+  const baseY = Math.round(height * 0.70);
   textAlign(CENTER, CENTER);
   textSize(ARROW_PX);
   fill(255, 0, 0);
@@ -443,18 +443,17 @@ function drawErrorMark() {
 
   
   if (practiceMode) {
-    const textStartY = baseY + 120;
+    const textStartY = baseY + 140;
     textSize(16);
     fill(255);
     textAlign(CENTER, TOP);                  
-    const startY = height / 2 + 70; 
     const reminder = `Zur Erinnerung:
 
 Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.
 
 Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
 Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.`;
-    text(reminder, width / 2, startY);
+    text(reminder, width / 2, textstartY);
   }
   pop();
 }
@@ -578,6 +577,7 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
 
 
 
