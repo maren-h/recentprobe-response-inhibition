@@ -136,8 +136,8 @@ function displayProbe(probe) {
     document.removeEventListener("keydown", handleResponse);
     clearTimeout(responseTimeout);
 
-    const trial = trials[currentTrial];
-    const memSetStr = trial.memorySet.join("");
+    const trial = trials[trials.length - 1];
+    const memSetStr = trial && trial.memorySet ? trial.memorySet.join("") : "";
 
     
     let correct = false;
@@ -196,8 +196,8 @@ function displayProbe(probe) {
   responseTimeout = setTimeout(() => {
   document.removeEventListener("keydown", handleResponse);
   if (!responseGiven) {
-    const trial = trials[currentTrial];
-    const memSetStr = trial.memorySet.join("");
+    const trial = trials[trials.length - 1];
+    const memSetStr = trial && trial.memorySet ? trial.memorySet.join("") : "";
 
     const wasCorrectNoGo = (probe === "X"); 
     const isErrorMiss   = !wasCorrectNoGo;  
@@ -552,4 +552,5 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
