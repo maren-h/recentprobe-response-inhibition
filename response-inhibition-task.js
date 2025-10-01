@@ -10,13 +10,14 @@ let currentTrialSSD = null;
 let experimentStartMs = null;
 let experimentDateStr = null;
 let experimentStartTimeStr = null;
+let csvSaved = false;
 
   
   
-// Stimulusgrößen (wie Exp.1: 48px)
+// Stimulusgrößen 
 const FIXATION_PX = 48;
 const ARROW_PX    = 48;
-let arrowOffset   = 100;   // in px
+let arrowOffset   = 100;   
 
 // Ellipse
 let ellipseW = 400;
@@ -32,6 +33,8 @@ const maxSSD  = 0.900;
 const trialsPerSet = 68;
 const totalSets    = 3;
 
+const PRACTICE_FEEDBACK_MS = 6000;
+const MAIN_FEEDBACK_MS = 500; 
 
 const practiceTrials = 20;
 let practiceMode = true;          
@@ -75,9 +78,13 @@ function enterFullscreen() {
   function startSecondExperiment() {
   if (exp2HasStarted) return;
   exp2HasStarted = true;
-  revealCanvasRequested = true;
 
   enterFullscreen();
+
+  const stim = document.getElementById('stimulus');
+  if (stim) stim.style.display = 'none';
+  const btn = document.getElementById('download-btn');
+  if (btn) btn.style.display = 'none';
     
   practiceMode = true;                 
   practiceJustFinished = false;
@@ -112,17 +119,13 @@ function enterFullscreen() {
 }
 
 function setup() {
-  const c = createCanvas(windowWidth, windowHeight); // ← c anlegen!
-
-  if (revealCanvasRequested) c.elt.style.display = 'block';
-  else                       c.elt.style.display = 'none';
-
+  const c = createCanvas(windowWidth, windowHeight); 
+  c.elt.style.display = revealCanvasRequested ? 'block' : 'none';
   textAlign(LEFT, TOP);
   textWrap(WORD);
   textLeading(30);
   frameRate(60);
   fill(255);
-
   state = 'intro';
 }
 
@@ -182,7 +185,7 @@ function generateTrials() {
 
 function startSet() {
   if (practiceMode) {
-    // einmaliger Übungsblock mit 20 Trials
+    // Übungsblock mit 20 Trials
     const full = generateTrials();
     trialList = full.slice(0, practiceTrials);
     setTrialIndex = 0;
@@ -196,13 +199,16 @@ function startSet() {
     return;
   }
 
-  // ab hier: echte Sets
+
   currentSet++;
   if (currentSet > totalSets) {
     state = 'end';
-    downloadCSV(); // trigger automatic download
-    return;
+    if (!csvSaved) {
+    csvSaved = true;
+    setTimeout(downloadCSV, 0);
   }
+  return;
+}
 
   trialList = generateTrials();
   setTrialIndex = 0;
@@ -281,19 +287,23 @@ function draw() {
       const endOfThisList = setTrialIndex >= trialList.length;
 
       if (endOfThisList) {
-        if (practiceMode) {
-          // Übung beendet -> Übergangsscreen
-          practiceMode = false;
-          practiceJustFinished = true;
-          state = 'practiceEnd';
-        } else {
-          // normales Blockende
-          if (currentSet < totalSets) {
-            state = 'break';
-          } else {
-            state = 'end';
-          }
-        }
+    if (practiceMode) {
+   
+    practiceMode = false;
+    practiceJustFinished = true;
+    state = 'practiceEnd';
+  } else {
+    
+    if (currentSet < totalSets) {
+      state = 'break';
+    } else {
+      state = 'end';
+      if (!csvSaved) {          
+        csvSaved = true;
+        setTimeout(downloadCSV, 0); 
+      }
+    }
+  }
       } else {
         currentTrial = trialList[setTrialIndex];
         isiDuration = Math.max(0.2, randomGaussian(1.5, 0.372));
@@ -312,37 +322,29 @@ function draw() {
 function drawIntro() {
   background(0);
   textSize(18);
-  textAlign(LEFT, TOP);
-  textWrap(WORD);
-  const margin = 50;
-  const wrap = width - 2 * margin;
+  textAlign(CENTER, CENTER);
   const textLines = `Experiment 2\n\nDrücken Sie eine beliebige Taste, um zu starten.`;
-  text(textLines, margin, 150, wrap);
+  text(textLines, width / 2, height / 2);
 }
 
 function drawPracticeEndScreen_Exp2() {
   background(0);
   textSize(18);
-  textAlign(LEFT, TOP);
+  textAlign(CENTER, CENTER);
   textWrap(WORD);
-  const margin = 50;
-  const wrap = width - 2 * margin;
   const textLines = `Der Übungsblock ist beendet.\n\n
   Jetzt startet der erste richtige Durchgang von Experiment 2.\n\n
   Zur Erinnerung: Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.\n\n
   Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
   Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.\n\n
   Drücken Sie eine beliebige Taste, um zu beginnen.`;
-  text(textLines, margin, 150, wrap);
+  text(textLines, width / 2, height / 2);
 }
 
 function drawBreakScreen() {
   background(0);
   textSize(18);
-  textAlign(LEFT, TOP);
-  textWrap(WORD);
-  const margin = 50;
-  const wrap = width - 2 * margin;
+  textAlign(CENTER, CENTER);
   const textLines = `Sie haben ${currentSet} von ${totalSets} Blöcken abgeschlossen.\n\n
   Wenn Sie möchten, können Sie eine kurze Pause machen.\n\n
   Wenn Sie wieder bereit sind, drücken Sie eine beliebige Taste, um fortzufahren.\n\n
@@ -351,19 +353,16 @@ function drawBreakScreen() {
   Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.\n\n
   Drücken Sie eine beliebige Taste, um zu beginnen.`;
   
-  text(textLines, margin, 150, wrap);
+  text(textLines, width / 2, height / 2);
 }
 
 function drawEndScreen() {
   background(0);
   textSize(18);
-  textAlign(LEFT, TOP);
-  textWrap(WORD);
-  const margin = 50;
-  const wrap = width - 2 * margin;
+  textAlign(CENTER, CENTER);
   const textLines = `Vielen Dank für Ihre Teilnahme an dieser Studie!\n\n 
     Wenden Sie sich nun an die Versuchsleitung.`;
-  text(textLines, margin, 150, wrap);
+  text(textLines, width / 2, height / 2);
 }
 
 function drawFixation() {
@@ -401,13 +400,15 @@ function drawErrorMark() {
   if (practiceMode) {
     textSize(16);
     fill(255);
+    textAlign(CENTER, TOP);                  
+    const startY = height / 2 + 70; 
     const reminder = `Zur Erinnerung:
 
 Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.
 
 Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
 Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.`;
-    text(reminder, width / 2, height / 2 + 120);
+    text(reminder, width / 2, startY);
   }
   pop();
 }
@@ -459,7 +460,7 @@ function handleResponse() {
   }
 
   if (isError) {
-    const dur = practiceMode ? 2000 : 500;   
+    const dur = practiceMode ? PRACTICE_FEEDBACK_MS : MAIN_FEEDBACK_MS;   
     showErrorUntil = nowMs() + dur;
   } else {
     showErrorUntil = 0;
@@ -483,7 +484,7 @@ function handleResponse() {
 }
 
 function downloadCSV() {
-// Endzeit & Gesamtdauer
+
   const end = new Date();
   const experimentEndMs = end.getTime();
   const totalMs = experimentStartMs ? (experimentEndMs - experimentStartMs) : null;
@@ -531,6 +532,7 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
 
 
 
