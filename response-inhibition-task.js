@@ -11,7 +11,7 @@ let experimentStartMs = null;
 let experimentDateStr = null;
 let experimentStartTimeStr = null;
 let csvSaved = false;
-lez exp2Cleaned = false;
+let exp2Cleaned = false;
 
 let __exp2PrevStyles;   
 let __exp2UiLocked = false;
@@ -576,6 +576,7 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
 
 
 
