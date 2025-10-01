@@ -4,6 +4,9 @@ const trialsPerBlock = 68;
 const totalBlocks = 3;
 let currentBlock = 1;
 
+const __urlParams = new URLSearchParams(window.location.search);
+const participantId = __urlParams.get('record_id') || __urlParams.get('rid') || "";
+
 const goConditions = ["match-recent","match-nonrecent","nonmatch-recent","nonmatch-nonrecent"];
 const conditionCounts = {"match-recent": 12, "match-nonrecent": 12, "nonmatch-recent": 12, "nonmatch-nonrecent": 12};
 let nogoCount = 20;
@@ -457,11 +460,12 @@ function downloadCSV() {
  
   lines.push(`#${expDateStr || ""};${expStartTimeStr || ""};${totalMs}`);
 
-  lines.push("trial;condition;isNogo;probe;response;correct;rt;memorySet");
+  lines.push("recordId;trial;condition;isNogo;probe;response;correct;rt;memorySet");
 
   // Daten
   data.forEach(d => {
     lines.push([
+      participantId,
       d.trial,
       d.condition,
       d.isNogo,
@@ -548,3 +552,4 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
