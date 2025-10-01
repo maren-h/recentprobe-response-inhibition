@@ -443,7 +443,7 @@ function drawErrorMark() {
 
   
   if (practiceMode) {
-    const textStartY = baseY + 120;
+    const textStartY = baseY + 80;
     textSize(16);
     fill(255);
     textAlign(CENTER, TOP);                  
@@ -576,6 +576,7 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
 
 
 
