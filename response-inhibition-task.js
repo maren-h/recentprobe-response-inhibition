@@ -312,14 +312,17 @@ function draw() {
       state = 'interTrial';
       trialStartTime = nowMs();
     }
-  } else if (state === 'interTrial') {
-    if (nowMs() < showErrorUntil) {
+ } else if (state === 'interTrial') {
+  if (nowMs() < showErrorUntil) {
     drawErrorMark();
   }
-    
-    if (elapsed >= 0.5) {
-      setTrialIndex++;
-      const endOfThisList = setTrialIndex >= trialList.length;
+
+  const baseITIpassed  = (elapsed >= 0.5);
+  const feedbackPassed = (nowMs() >= showErrorUntil);   
+
+  if (baseITIpassed && feedbackPassed) {                
+    setTrialIndex++;
+    const endOfThisList = setTrialIndex >= trialList.length;
 
       if (endOfThisList) {
     if (practiceMode) {
@@ -576,6 +579,7 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
 
 
 
