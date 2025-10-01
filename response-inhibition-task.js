@@ -11,7 +11,34 @@ let experimentStartMs = null;
 let experimentDateStr = null;
 let experimentStartTimeStr = null;
 let csvSaved = false;
+lez exp2Cleaned = false;
 
+let __exp2PrevStyles;   
+let __exp2UiLocked = false;
+
+function lockExp2UI() {
+  if (__exp2UiLocked) return;
+  __exp2PrevStyles = {
+    htmlOverflow: document.documentElement.style.overflow,
+    bodyOverflow: document.body.style.overflow,
+    htmlBg:       document.documentElement.style.background,
+    bodyBg:       document.body.style.background
+  };
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow            = 'hidden';
+  document.documentElement.style.background = '#000';
+  document.body.style.background            = '#000';
+  __exp2UiLocked = true;
+}
+
+function unlockExp2UI() {
+  if (!__exp2UiLocked) return;
+  document.documentElement.style.overflow  = __exp2PrevStyles.htmlOverflow || '';
+  document.body.style.overflow             = __exp2PrevStyles.bodyOverflow || '';
+  document.documentElement.style.background = __exp2PrevStyles.htmlBg || '';
+  document.body.style.background            = __exp2PrevStyles.bodyBg || '';
+  __exp2UiLocked = false;
+}
   
   
 // Stimulusgrößen 
@@ -78,6 +105,7 @@ function enterFullscreen() {
   function startSecondExperiment() {
   if (exp2HasStarted) return;
   exp2HasStarted = true;
+  revealCanvasRequested = true;
 
   enterFullscreen();
 
@@ -85,7 +113,9 @@ function enterFullscreen() {
   if (stim) stim.style.display = 'none';
   const btn = document.getElementById('download-btn');
   if (btn) btn.style.display = 'none';
-    
+
+  lockExp2UI();
+  
   practiceMode = true;                 
   practiceJustFinished = false;
   currentSet = 0;                     
@@ -119,16 +149,21 @@ function enterFullscreen() {
 }
 
 function setup() {
-  const c = createCanvas(windowWidth, windowHeight); 
-  c.elt.style.display = revealCanvasRequested ? 'block' : 'none';
+  const c = createCanvas(windowWidth, windowHeight);
+  c.elt.style.display  = revealCanvasRequested ? 'block' : 'none';
+
+  c.elt.style.position = 'fixed';
+  c.elt.style.inset    = '0';      
+  c.elt.style.zIndex   = '2';
+
   textAlign(LEFT, TOP);
   textWrap(WORD);
   textLeading(30);
   frameRate(60);
   fill(255);
+
   state = 'intro';
 }
-
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
@@ -363,6 +398,15 @@ function drawEndScreen() {
   const textLines = `Vielen Dank für Ihre Teilnahme an dieser Studie!\n\n 
     Wenden Sie sich nun an die Versuchsleitung.`;
   text(textLines, width / 2, height / 2);
+if (!csvSaved) {
+    csvSaved = true;
+    setTimeout(downloadCSV, 0);
+  }
+
+  if (!exp2Cleaned) {
+    exp2Cleaned = true;
+    unlockExp2UI();
+  }
 }
 
 function drawFixation() {
@@ -532,6 +576,7 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
 
 
 
