@@ -55,7 +55,7 @@ let instructionPages = [
     <img src="memoryset.png" style="max-width:400px; display:block; margin:auto;">`,
 
   `Als nächstes erscheint ein einzelner Buchstabe.<br><br>
-  Ihre Aufgabe ist es zu entscheiden, ob dieser Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
+  Ihre Aufgabe ist es, zu entscheiden, ob dieser Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
    Wenn ja, drücken Sie die rechte Pfeiltaste (→)<br>
    Wenn nein, drücken Sie die linke Pfeiltaste (←)`,
 
@@ -176,53 +176,61 @@ function displayProbe(probe) {
           „X“ erscheint: keine Taste drücken
         </div>`;
       setTimeout(nextTrial, 6000);
+    } else if (!inPractice && error) {
+  // TESTBLOCK: kurzes „!“ (0.5 s)
+  stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
+  setTimeout(nextTrial, 500);             // <- direkt 500 ms
+} else {
+  // korrekt → sofort weiter
+  stimulusDiv.textContent = "";
+  nextTrial();
+}
+
+  document.addEventListener("keydown", handleResponse);
+
+  
+  responseTimeout = setTimeout(() => {
+  document.removeEventListener("keydown", handleResponse);
+  if (!responseGiven) {
+    const trial = trials[currentTrial];
+    const memSetStr = trial.memorySet.join("");
+
+    const wasCorrectNoGo = (probe === "X"); 
+    const isErrorMiss   = !wasCorrectNoGo;  
+
+    if (!inPractice) {
+      data.push({
+        trial: currentTrial + 1,
+        condition: trial.condition,
+        isNogo: trial.isNogo,
+        probe: probe,
+        response: "none",
+        correct: wasCorrectNoGo,
+        rt: "none",
+        memorySet: memSetStr
+      });
+    }
+
+    if (inPractice && isErrorMiss) {
+      stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
+        <div style="margin-top:10px; font-size:16px; color:black;">
+          Zur Erinnerung:<br>
+          einzelner Buchstabe kam auch bei den sechs Buchstaben vor: → rechte Pfeiltaste <br>
+          einzelner Buchstabe kam nicht bei den sechs Buchstaben vor: ← linke Pfeiltaste <br>
+          „X“ erscheint: keine Taste drücken
+        </div>`;
+      setTimeout(nextTrial, 6000);       
+    } else if (!inPractice && isErrorMiss) {
+      // TESTBLOCK: kurzes „!“ (0.5 s)
+      stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
+      setTimeout(nextTrial, 500);        
     } else {
      
       stimulusDiv.textContent = "";
       nextTrial();
     }
   }
-
-  document.addEventListener("keydown", handleResponse);
-
-  
-  responseTimeout = setTimeout(() => {
-    document.removeEventListener("keydown", handleResponse);
-    if (!responseGiven) {
-      const trial = trials[currentTrial];
-      const memSetStr = trial.memorySet.join("");
-
-      const wasCorrectNoGo = (probe === "X"); 
-      const isErrorMiss   = !wasCorrectNoGo;  
-
-      if (!inPractice) {
-        data.push({
-          trial: currentTrial + 1,
-          condition: trial.condition,
-          isNogo: trial.isNogo,
-          probe: probe,
-          response: "none",
-          correct: wasCorrectNoGo,
-          rt: "none",
-          memorySet: memSetStr
-        });
-      }
-
-      if (inPractice && isErrorMiss) {
-        stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
-          <div style="margin-top:10px; font-size:16px; color:black;">
-            Zur Erinnerung:<br>
-            einzelner Buchstabe kam auch bei den sechs Buchstaben vor: → rechte Pfeiltaste <br>
-            einzelner Buchstabe kam nicht bei den sechs Buchstaben vor: ← linke Pfeiltaste <br>
-            „X“ erscheint: keine Taste drücken
-          </div>`;
-        setTimeout(nextTrial, 6000);
-      } else {
-        stimulusDiv.textContent = "";
-        nextTrial();
-      }
-    }
-  }, 2000);
+}, 2000);
 }
 
     
@@ -262,6 +270,7 @@ function showBreakScreen() {
     document.removeEventListener("keydown", breakHandler);
     currentBlock++;
     currentTrial = 0;
+    trials.length = 0;
     shuffleInPlace(allTrialConditions);   
     setStimulusTextSize(STIMULUS_PX);
     runTrial();
@@ -282,6 +291,7 @@ function showPracticeEndScreen_Exp1() {
     document.removeEventListener("keydown", practiceEndHandler);
     inPractice = false;
     currentTrial = 0;
+    trials.length = 0;
     usedPracticeSets.clear();             
     shuffleInPlace(allTrialConditions);   
     setStimulusTextSize(STIMULUS_PX);
@@ -538,6 +548,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
