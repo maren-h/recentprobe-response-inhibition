@@ -434,14 +434,16 @@ function drawArrow(symbol, xOffset) {
 
 function drawErrorMark() {
   push();
+  const baseY = Math.round(height * 0.65);
   textAlign(CENTER, CENTER);
   textSize(ARROW_PX);
   fill(255, 0, 0);
   noStroke();
-  text('!', width / 2, height / 2 + 60);
+  text('!', width / 2, baseY);
 
   
   if (practiceMode) {
+    const textStartY = baseY + 120;
     textSize(16);
     fill(255);
     textAlign(CENTER, TOP);                  
@@ -576,6 +578,7 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
 
 
 
