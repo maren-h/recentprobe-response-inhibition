@@ -11,7 +11,6 @@ const goConditions = ["match-recent","match-nonrecent","nonmatch-recent","nonmat
 const conditionCounts = {"match-recent": 12, "match-nonrecent": 12, "nonmatch-recent": 12, "nonmatch-nonrecent": 12};
 let nogoCount = 20;
 
-
 function shuffleInPlace(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -20,12 +19,29 @@ function shuffleInPlace(array) {
   return array;
 }
 
+// === NEU: verhindert zwei NoGo hintereinander (z. B. „X“ gefolgt von „X“) ===
+function ensureNoConsecutiveNogo(arr) {
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i].isNogo && arr[i - 1].isNogo) {
+      // suche das nächste Go-Trial und tausche
+      let j = i + 1;
+      while (j < arr.length && arr[j].isNogo) j++;
+      if (j < arr.length) {
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+  }
+  return arr;
+}
+
 let allTrialConditions = [];
 goConditions.forEach(c => {
   for (let i = 0; i < conditionCounts[c]; i++) allTrialConditions.push({condition: c, isNogo: false});
 });
 for (let i = 0; i < nogoCount; i++) allTrialConditions.push({condition: "nogo", isNogo: true});
-shuffleInPlace(allTrialConditions); 
+shuffleInPlace(allTrialConditions);
+// === NEU: direkt nach dem ersten Shuffle absichern ===
+ensureNoConsecutiveNogo(allTrialConditions);
 
 let currentTrial = 0;
 let memoryHistory = [];
@@ -36,9 +52,8 @@ let responseGiven = false;
 const stimulusDiv = document.getElementById("stimulus");
 const downloadBtn = document.getElementById("download-btn");
 
-
-const STIMULUS_PX = 48;  
-const UI_TEXT_PX  = 20;  
+const STIMULUS_PX = 48;
+const UI_TEXT_PX  = 20;
 
 const pad = n => String(n).padStart(2,'0');
 const fmtDate = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -51,19 +66,14 @@ let expStartTimeStr = null;
 let instructionPages = [
   `Experiment 1 <br><br>
    Willkommen zum ersten Experiment. Drücken Sie eine beliebige Taste, um sich durch die Instruktionen zu klicken.`,
-   
   `Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz in der Mitte des Bildschirms. Bitte schauen Sie darauf.`,
-
   `Anschließend erscheinen wie auf dem Beispielbild sechs Buchstaben. Merken Sie sich diese so gut wie möglich.<br><br>
     <img src="memoryset.png" style="max-width:400px; display:block; margin:auto;">`,
-
   `Als nächstes erscheint ein einzelner Buchstabe.<br><br>
   Ihre Aufgabe ist es, zu entscheiden, ob dieser Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
    Wenn ja, drücken Sie die rechte Pfeiltaste (→)<br>
    Wenn nein, drücken Sie die linke Pfeiltaste (←)`,
-
   `In manchen Durchgängen erscheint ein „X“. Dann dürfen Sie keine Taste drücken.`,
-
   `Wenn Sie einen Fehler machen, erscheint ein rotes Ausrufezeichen (!) auf dem Bildschirm.<br><br>
    Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
    <em>Drücken Sie eine beliebige Taste, um den Übungsblock zu starten.</em>`
@@ -73,28 +83,22 @@ let currentInstructionPage = 0;
 let secondInstructionPages = [
   `Experiment 2<br><br>
    Willkommen zum zweiten Experiment. Drücken Sie eine beliebige Taste, um sich durch die Instruktionen zu klicken.`,
-  
-   `Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz innerhalb einer Ellipse. Bitte schauen Sie darauf.`,
-
+  `Zu Beginn jedes Durchgangs erscheint ein Fixationskreuz innerhalb einer Ellipse. Bitte schauen Sie darauf.`,
   `Als nächstes erscheint rechts oder links vom Fixationskreuz ein Pfeil.<br>
    Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.<br><br>
    <img src="ellipseweiss.png" style="max-width:400px; display:block; margin:auto;">`,
-
   `In manchen Durchgängen erscheint die Ellipse in Blau. Dann dürfen Sie keine Taste drücken.<br><br>
    <img src="ellipseblau.png" style="max-width:400px; display:block; margin:auto;">`,
-
   `In manchen Durchgängen erscheint die Ellipse zuerst in Weiß und wechselt dann zu Blau. Auch dann dürfen Sie keine Taste drücken.`,
-
   `Wenn Sie einen Fehler machen, erscheint ein rotes Ausrufezeichen (!) auf dem Bildschirm.<br><br>
    Versuchen Sie immer, so schnell und genau wie möglich zu reagieren.<br><br>
    <em>Drücken Sie eine beliebige Taste, um den Übungsblock zu starten.</em>`
 ];
 let currentSecondInstructionPage = 0;
 
-
-const practiceTrials = 20;     
-let inPractice = true;         
-const usedPracticeSets = new Set(); 
+const practiceTrials = 20;
+let inPractice = true;
+const usedPracticeSets = new Set();
 
 function setStimulusTextSize(px) {
   stimulusDiv.style.fontSize = px + "px";
@@ -103,7 +107,7 @@ function setStimulusTextSize(px) {
 
 function pickRandomLetters(exclude, count) {
   let pool = letters.filter(l => !exclude.includes(l));
-  shuffleInPlace(pool);                 
+  shuffleInPlace(pool);
   return pool.slice(0, count);
 }
 
@@ -139,7 +143,6 @@ function displayProbe(probe) {
     const trial = trials[trials.length - 1];
     const memSetStr = trial && trial.memorySet ? trial.memorySet.join("") : "";
 
-    
     let correct = false;
     let error = false;
 
@@ -155,7 +158,6 @@ function displayProbe(probe) {
       error = true;
     }
 
-    
     if (!inPractice) {
       data.push({
         trial: currentTrial + 1,
@@ -170,7 +172,6 @@ function displayProbe(probe) {
     }
 
     if (inPractice && error) {
-     
       stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
         <div style="margin-top:10px; font-size:16px; color:black;">
           Zur Erinnerung:<br>
@@ -180,64 +181,58 @@ function displayProbe(probe) {
         </div>`;
       setTimeout(nextTrial, 6000);
     } else if (!inPractice && error) {
-
-  stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
-  setTimeout(nextTrial, 500);            
-} else {
-  
-  stimulusDiv.textContent = "";
-  nextTrial();
-}
-  }
-
-  document.addEventListener("keydown", handleResponse);
-
-  
-  responseTimeout = setTimeout(() => {
-  document.removeEventListener("keydown", handleResponse);
-  if (!responseGiven) {
-    const trial = trials[trials.length - 1];
-    const memSetStr = trial && trial.memorySet ? trial.memorySet.join("") : "";
-
-    const wasCorrectNoGo = (probe === "X"); 
-    const isErrorMiss   = !wasCorrectNoGo;  
-
-    if (!inPractice) {
-      data.push({
-        trial: currentTrial + 1,
-        condition: trial.condition,
-        isNogo: trial.isNogo,
-        probe: probe,
-        response: "none",
-        correct: wasCorrectNoGo,
-        rt: "none",
-        memorySet: memSetStr
-      });
-    }
-
-    if (inPractice && isErrorMiss) {
-      stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
-        <div style="margin-top:10px; font-size:16px; color:black;">
-          Zur Erinnerung:<br>
-          einzelner Buchstabe kam auch bei den sechs Buchstaben vor: → rechte Pfeiltaste <br>
-          einzelner Buchstabe kam nicht bei den sechs Buchstaben vor: ← linke Pfeiltaste <br>
-          „X“ erscheint: keine Taste drücken
-        </div>`;
-      setTimeout(nextTrial, 6000);       
-    } else if (!inPractice && isErrorMiss) {
-      // TESTBLOCK: kurzes „!“ (0.5 s)
       stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
-      setTimeout(nextTrial, 500);        
+      setTimeout(nextTrial, 500);
     } else {
-     
       stimulusDiv.textContent = "";
       nextTrial();
     }
   }
-}, 2000);
+
+  document.addEventListener("keydown", handleResponse);
+
+  responseTimeout = setTimeout(() => {
+    document.removeEventListener("keydown", handleResponse);
+    if (!responseGiven) {
+      const trial = trials[trials.length - 1];
+      const memSetStr = trial && trial.memorySet ? trial.memorySet.join("") : "";
+
+      const wasCorrectNoGo = (probe === "X");
+      const isErrorMiss   = !wasCorrectNoGo;
+
+      if (!inPractice) {
+        data.push({
+          trial: currentTrial + 1,
+          condition: trial.condition,
+          isNogo: trial.isNogo,
+          probe: probe,
+          response: "none",
+          correct: wasCorrectNoGo,
+          rt: "none",
+          memorySet: memSetStr
+        });
+      }
+
+      if (inPractice && isErrorMiss) {
+        stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
+          <div style="margin-top:10px; font-size:16px; color:black;">
+            Zur Erinnerung:<br>
+            einzelner Buchstabe kam auch bei den sechs Buchstaben vor: → rechte Pfeiltaste <br>
+            einzelner Buchstabe kam nicht bei den sechs Buchstaben vor: ← linke Pfeiltaste <br>
+            „X“ erscheint: keine Taste drücken
+          </div>`;
+        setTimeout(nextTrial, 6000);
+      } else if (!inPractice && isErrorMiss) {
+        stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span>`;
+        setTimeout(nextTrial, 500);
+      } else {
+        stimulusDiv.textContent = "";
+        nextTrial();
+      }
+    }
+  }, 2000);
 }
 
-    
 function nextTrial() {
   currentTrial++;
 
@@ -275,7 +270,9 @@ function showBreakScreen() {
     currentBlock++;
     currentTrial = 0;
     trials.length = 0;
-    shuffleInPlace(allTrialConditions);   
+    shuffleInPlace(allTrialConditions);
+    // === NEU: nach Re-Shuffle absichern ===
+    ensureNoConsecutiveNogo(allTrialConditions);
     setStimulusTextSize(STIMULUS_PX);
     runTrial();
   });
@@ -296,21 +293,37 @@ function showPracticeEndScreen_Exp1() {
     inPractice = false;
     currentTrial = 0;
     trials.length = 0;
-    usedPracticeSets.clear();             
-    shuffleInPlace(allTrialConditions);   
+    usedPracticeSets.clear();
+    shuffleInPlace(allTrialConditions);
+    // === NEU: nach Re-Shuffle absichern ===
+    ensureNoConsecutiveNogo(allTrialConditions);
     setStimulusTextSize(STIMULUS_PX);
     runTrial();
   });
 }
 
 function runTrial() {
+  // === NEU: Laufzeit-Sicherung – falls doch zwei NoGo anstehen, on-the-fly tauschen ===
+  if (currentTrial > 0) {
+    const prev = allTrialConditions[currentTrial - 1];
+    const curr = allTrialConditions[currentTrial];
+    if (prev?.isNogo && curr?.isNogo) {
+      let k = currentTrial + 1;
+      while (k < allTrialConditions.length && allTrialConditions[k].isNogo) k++;
+      if (k < allTrialConditions.length) {
+        [allTrialConditions[currentTrial], allTrialConditions[k]] =
+          [allTrialConditions[k], allTrialConditions[currentTrial]];
+      }
+    }
+  }
+
   const trialInfo = allTrialConditions[currentTrial];
   if (expStartMs === null) {
-  const start = new Date();
-  expStartMs = start.getTime();
-  expDateStr = fmtDate(start);
-  expStartTimeStr = fmtTime(start);
-}
+    const start = new Date();
+    expStartMs = start.getTime();
+    expDateStr = fmtDate(start);
+    expStartTimeStr = fmtTime(start);
+  }
   let memorySet;
   let probe;
 
@@ -325,7 +338,7 @@ function runTrial() {
           const shared = lastSet[Math.floor(Math.random() * lastSet.length)];
           memorySet = pickRandomLetters(["X", shared], 5);
           memorySet.push(shared);
-          shuffleInPlace(memorySet);                     
+          shuffleInPlace(memorySet);
           probe = shared;
         } else {
           memorySet = pickRandomLetters(["X"], 6);
@@ -340,7 +353,7 @@ function runTrial() {
           const probeMN = eligibleMN[Math.floor(Math.random() * eligibleMN.length)];
           const baseSet = pickRandomLetters(["X", probeMN], 5);
           memorySet = [...baseSet, probeMN];
-          shuffleInPlace(memorySet);                     
+          shuffleInPlace(memorySet);
           probe = probeMN;
         } else {
           memorySet = pickRandomLetters(["X"], 6);
@@ -353,7 +366,7 @@ function runTrial() {
         if (memoryHistory.length > 0) {
           const lastSet = memoryHistory[memoryHistory.length - 1];
           const candidates = lastSet.filter(l => l !== "X");
-          shuffleInPlace(candidates);                    
+          shuffleInPlace(candidates);
           let found = false;
           for (let i = 0; i < candidates.length; i++) {
             const probeCandidate = candidates[i];
@@ -391,7 +404,6 @@ function runTrial() {
     }
   }
 
- 
   if (!memorySet) {
     console.warn("memorySet war leer – Default gezogen");
     memorySet = pickRandomLetters(["X"], 6);
@@ -401,7 +413,6 @@ function runTrial() {
     probe = memorySet[Math.floor(Math.random() * memorySet.length)];
   }
 
- 
   if (inPractice) {
     let key = memorySet.join("-");
     let guard = 0;
@@ -428,7 +439,6 @@ function runTrial() {
   memoryHistory.push(memorySet);
   if (memoryHistory.length > 3) memoryHistory.shift();
 
-
   setStimulusTextSize(STIMULUS_PX);
 
   displayFixation(1500, () => {
@@ -451,18 +461,13 @@ function endExperiment() {
 }
 
 function downloadCSV() {
-  
   const end = new Date();
   const totalMs = (expStartMs != null) ? (end.getTime() - expStartMs) : "";
 
   const lines = [];
-
- 
   lines.push(`#${expDateStr || ""};${expStartTimeStr || ""};${totalMs}`);
-
   lines.push("recordId;trial;condition;isNogo;probe;response;correct;rt;memorySet");
 
-  // Daten
   data.forEach(d => {
     lines.push([
       participantId,
@@ -487,7 +492,6 @@ function downloadCSV() {
   URL.revokeObjectURL(url);
 }
 
-
 function showWelcomeScreen() {
   setStimulusTextSize(UI_TEXT_PX);
   stimulusDiv.innerHTML = `Hallo! Vielen Dank für die Teilnahme an dieser Studie. <br><br>
@@ -503,11 +507,9 @@ function welcomeHandler() {
   showInstructions();
 }
 
-
 function showInstructions() {
   setStimulusTextSize(UI_TEXT_PX);
   stimulusDiv.innerHTML = instructionPages[currentInstructionPage];
-
   document.addEventListener("keydown", instructionPageHandler);
 }
 
@@ -516,11 +518,9 @@ function instructionPageHandler() {
   currentInstructionPage++;
 
   if (currentInstructionPage < instructionPages.length) {
-    // nächste Seite zeigen
     showInstructions();
   } else {
-    // fertig: Übungsblock starten
-    currentInstructionPage = 0; // optional zurücksetzen für Wiederverwendung
+    currentInstructionPage = 0;
     setStimulusTextSize(STIMULUS_PX);
     runTrial();
   }
@@ -532,7 +532,7 @@ function startSecondExperimentInstructions() {
   downloadBtn.style.display = "none";
   setStimulusTextSize(UI_TEXT_PX);
   currentSecondInstructionPage = 0;
-  stimulusDiv.style.display = ""; // sicherheitshalber einblenden
+  stimulusDiv.style.display = "";
   stimulusDiv.innerHTML = secondInstructionPages[currentSecondInstructionPage];
 
   document.addEventListener("keydown", secondInstructionPageHandler);
@@ -552,5 +552,3 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
-
-
