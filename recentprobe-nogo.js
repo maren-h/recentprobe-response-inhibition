@@ -5,7 +5,7 @@ const totalBlocks = 3;
 let currentBlock = 1;
 
 const __urlParams = new URLSearchParams(window.location.search);
-const participantId = __urlParams.get('record_id') || __urlParams.get('rid') || "";
+const participantId = __urlParams.get('REDCapID') || __urlParams.get('record_id') || __urlParams.get('rid') || "";
 
 const goConditions = ["match-recent","match-nonrecent","nonmatch-recent","nonmatch-nonrecent"];
 const conditionCounts = {"match-recent": 12, "match-nonrecent": 12, "nonmatch-recent": 12, "nonmatch-nonrecent": 12};
@@ -552,3 +552,4 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
