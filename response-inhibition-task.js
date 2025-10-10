@@ -1,5 +1,23 @@
 (() => {
   'use strict';
+
+function getParam(name) {
+  const u = new URL(window.location.href);
+  let v = u.searchParams.get(name);
+  if (!v && u.hash.includes('?')) {
+    const hashQuery = u.hash.split('?')[1].split('#')[0];
+    v = new URLSearchParams(hashQuery).get(name);
+  }
+  return v ? decodeURIComponent(v).trim() : "";
+}
+
+const participantId =
+  getParam('REDCapID') ||
+  getParam('record_id') ||
+  getParam('rid') ||
+  getParam('id') ||
+  "";
+  
 let fixationText = '+';
 let arrowSymbol = { left: '←', right: '→' };
 
@@ -579,6 +597,7 @@ function shuffle(array) {
   window.draw = draw;         
   window.keyPressed = keyPressed; 
 })();
+
 
 
 
