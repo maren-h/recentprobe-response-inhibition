@@ -19,7 +19,7 @@ function shuffleInPlace(array) {
   return array;
 }
 
-// === NEU: verhindert zwei NoGo hintereinander (z. B. „X“ gefolgt von „X“) ===
+
 function ensureNoConsecutiveNogo(arr) {
   for (let i = 1; i < arr.length; i++) {
     if (arr[i].isNogo && arr[i - 1].isNogo) {
@@ -40,7 +40,6 @@ goConditions.forEach(c => {
 });
 for (let i = 0; i < nogoCount; i++) allTrialConditions.push({condition: "nogo", isNogo: true});
 shuffleInPlace(allTrialConditions);
-// === NEU: direkt nach dem ersten Shuffle absichern ===
 ensureNoConsecutiveNogo(allTrialConditions);
 
 let currentTrial = 0;
@@ -552,4 +551,5 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
