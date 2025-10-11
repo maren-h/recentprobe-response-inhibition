@@ -376,7 +376,7 @@ Drücken Sie eine beliebige Taste, um zu beginnen.`;
     background(0);
     textSize(18);
     textAlign(CENTER, CENTER);
-    const textlines = `Sie haben ${currentSet} von ${totalSets} Blöcken abgeschlossen.
+    const textLines = `Sie haben ${currentSet} von ${totalSets} Blöcken abgeschlossen.
 Wenn Sie möchten, können Sie eine kurze Pause machen.
 Wenn Sie wieder bereit sind, drücken Sie eine beliebige Taste, um fortzufahren.
 Zur Erinnerung: Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.
@@ -441,7 +441,7 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
   function handleResponse(stimSideArg, arrowPointArg) {
     if (!currentTrial) return;
 
-    // adaptives SSD nur für Stop-Trials
+   
     if (currentTrial.type === 'stop') {
       if (responded) ssd = Math.max(minSSD, ssd - ssdStep);
       else           ssd = Math.min(maxSSD, ssd + ssdStep);
@@ -549,5 +549,6 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
   window.draw = draw;
   window.keyPressed = keyPressed;
 })();
+
 
 
