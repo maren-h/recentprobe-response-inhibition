@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  // --------- REDCap-ID lesen ----------
+ 
   function getParam(name) {
     const u = new URL(window.location.href);
     let v = u.searchParams.get(name);
@@ -18,7 +18,7 @@
     getParam('id') ||
     "";
 
-  // ---------- Basiskonstanten ----------
+
   let fixationText = '+';
   let arrowSymbol = { left: '←', right: '→' };
 
@@ -98,7 +98,7 @@
 
   let isiDuration = 0;
   const fixationDuration = 0.5;
-  const stimulusDuration = 1.0;
+  const stimulusDuration = 2.0;
   let ellipseShouldBeBlue = false;
 
   let exp2HasStarted = false;
@@ -288,14 +288,13 @@
         currentTrialSSD = ssd;
       }
     } else if (state === 'stimulus') {
-      // ------------- FIX: Seite vs. Pfeilrichtung trennen ----------------
-      let stimSide   = currentTrial.direction;                 // wo der Pfeil steht
-      let arrowPoint = stimSide;                               // wohin er zeigt
+      let stimSide   = currentTrial.direction;                 
+      let arrowPoint = stimSide;                               
       if (currentTrial.type === 'incongruent_go') {
-        arrowPoint = (stimSide === 'left') ? 'right' : 'left'; // nur Richtung kippen
+        arrowPoint = (stimSide === 'left') ? 'right' : 'left'; 
       }
 
-      // NoGo: sofort blau ab Stimulus-Onset; Stop: nach SSD
+     
       ellipseShouldBeBlue = (currentTrial.type === 'nogo')
         ? true
         : (currentTrial.type === 'stop' && !stopPresented && elapsed >= ssd)
@@ -306,13 +305,12 @@
 
       drawEllipse(ellipseShouldBeBlue ? 'blue' : 'white');
       drawFixation();
-      // Du willst auch bei NoGo den Pfeil sehen → zeichnen wir immer:
       drawArrow(arrowSymbol[arrowPoint], arrowDisplayOffset);
 
       if (nowMs() < showErrorUntil) drawErrorMark();
 
       if (elapsed >= stimulusDuration && !responded) {
-        handleResponse(stimSide, arrowPoint); // übergeben für Logging/Scoring
+        handleResponse(stimSide, arrowPoint); 
         state = 'interTrial';
         trialStartTime = nowMs();
       }
@@ -366,25 +364,25 @@
     textSize(18);
     textAlign(CENTER, CENTER);
     textWrap(WORD);
-    const textLines = `Der Übungsblock ist beendet.\n\n
-  Jetzt startet der erste richtige Durchgang von Experiment 2.\n\n
-  Zur Erinnerung: Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.\n\n
-  Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
-  Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.\n\n
-  Drücken Sie eine beliebige Taste, um zu beginnen.`;
+    const textLines = const lines = `Der Übungsblock ist beendet.
+Jetzt startet der erste richtige Durchgang von Experiment 2.
+Zur Erinnerung: Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.
+Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
+Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.
+Drücken Sie eine beliebige Taste, um zu beginnen.`;
     text(textLines, width / 2, height / 2);
   }
   function drawBreakScreen() {
     background(0);
     textSize(18);
     textAlign(CENTER, CENTER);
-    const textLines = `Sie haben ${currentSet} von ${totalSets} Blöcken abgeschlossen.\n\n
-  Wenn Sie möchten, können Sie eine kurze Pause machen.\n\n
-  Wenn Sie wieder bereit sind, drücken Sie eine beliebige Taste, um fortzufahren.\n\n
-  Zur Erinnerung: Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.\n\n
-  Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
-  Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.\n\n
-  Drücken Sie eine beliebige Taste, um zu beginnen.`;
+    const lines = `Sie haben ${currentSet} von ${totalSets} Blöcken abgeschlossen.
+Wenn Sie möchten, können Sie eine kurze Pause machen.
+Wenn Sie wieder bereit sind, drücken Sie eine beliebige Taste, um fortzufahren.
+Zur Erinnerung: Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.
+Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
+Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.
+Drücken Sie eine beliebige Taste, um zu beginnen.`;
     text(textLines, width / 2, height / 2);
   }
   function drawEndScreen() {
@@ -432,7 +430,6 @@
       fill(255);
       textAlign(CENTER, TOP);
       const reminder = `Zur Erinnerung:
-
 Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.
 Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
 Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.`;
@@ -441,7 +438,6 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
     pop();
   }
 
-  // handleResponse nimmt jetzt (stimSide, arrowPoint) entgegen
   function handleResponse(stimSideArg, arrowPointArg) {
     if (!currentTrial) return;
 
@@ -464,7 +460,6 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
     let isError = false;
     let correct = false;
 
-    // erwartete Richtung = gezeigte Pfeilrichtung
     const expectedKey =
       (currentTrial.type === 'incongruent_go')
         ? (currentTrial.direction === 'left' ? 'right' : 'left')
@@ -486,7 +481,7 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
       ? nowMs() + (practiceMode ? PRACTICE_FEEDBACK_MS : MAIN_FEEDBACK_MS)
       : 0;
 
-    // --------- Logging (ab Set 1) ----------
+   
     if (currentSet > 0) {
       const stimSideLogged   = currentTrial.direction;
       const arrowPointLogged = expectedKey;
@@ -495,8 +490,8 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
         set: currentSet,
         trial: setTrialIndex + 1,
         type: currentTrial.type,
-        stimSide: stimSideLogged,                 // NEU: tatsächliche Seite
-        arrowPoint: arrowPointLogged,             // NEU: gezeigte Richtung
+        stimSide: stimSideLogged,                 
+        arrowPoint: arrowPointLogged,            
         pressedKey: pressedKey,
         responded: responded,
         correct: !!correct,
@@ -515,7 +510,7 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
     let lines = [];
     lines.push(`#${experimentDateStr};${experimentStartTimeStr};${totalMs != null ? totalMs : ""}`);
 
-    // Kopfzeile – ergänzt um StimSide & ArrowPoint
+    
     lines.push("recordId;Set;Trial;Type;StimSide;ArrowPoint;PressedKey;Responded;Correct;RT_ms;SSD;EllipseColor");
 
     fullData.forEach(d => {
@@ -554,3 +549,4 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
   window.draw = draw;
   window.keyPressed = keyPressed;
 })();
+
