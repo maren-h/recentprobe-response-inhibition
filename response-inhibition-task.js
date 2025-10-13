@@ -386,6 +386,7 @@ Jetzt startet der erste richtige Durchgang von Experiment 2.
 Zur Erinnerung: Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der Pfeil zeigt.
 Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
 Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.
+
 Drücken Sie eine beliebige Taste, um zu beginnen.`;
     text(textLines, width / 2, height / 2);
   }
@@ -567,3 +568,4 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
   window.draw = draw;
   window.keyPressed = keyPressed;
 })();
+
