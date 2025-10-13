@@ -1,7 +1,6 @@
 (() => {
   'use strict';
 
- 
   function getParam(name) {
     const u = new URL(window.location.href);
     let v = u.searchParams.get(name);
@@ -17,7 +16,6 @@
     getParam('rid') ||
     getParam('id') ||
     "";
-
 
   let fixationText = '+';
   let arrowSymbol = { left: '←', right: '→' };
@@ -97,8 +95,9 @@
   let stopPresented = false;
 
   let isiDuration = 0;
-  const fixationDuration = 0.5;
-  const stimulusDuration = 2.0;
+  const fixationDuration   = 0.5; // 500 ms Fixation
+  const preEllipseDuration = 0.5; // 500 ms weiße Ellipse + Fixation (kein Pfeil)
+  const stimulusDuration   = 2.0; // 2000 ms max. (oder bis Tastendruck)
   let ellipseShouldBeBlue = false;
 
   let exp2HasStarted = false;
@@ -201,19 +200,14 @@
     }
   }
 
+  // --- EXAKTE Anzahlen pro Set: 41/9/9/9 ---
   function generateTrials() {
-    const proportions = {
-      congruent_go:   0.625,
-      incongruent_go: 0.125,
-      nogo:           0.125,
-      stop:           0.125,
-    };
+    const n_congruent   = 41;
+    const n_incongruent = 9;
+    const n_nogo        = 9;
+    const n_stop        = 9;
 
     let trialList = [];
-    const n_congruent   = Math.floor(trialsPerSet * proportions.congruent_go);   // 42
-    const n_incongruent = Math.floor(trialsPerSet * proportions.incongruent_go); // 8
-    const n_nogo        = Math.floor(trialsPerSet * proportions.nogo);           // 8
-    const n_stop        = trialsPerSet - n_congruent - n_incongruent - n_nogo;   // 10
 
     function addTrials(type, count) {
       for (let i = 0; i < count; i++) {
@@ -270,50 +264,69 @@
 
     if (state === 'intro') {
       drawIntro();
+
     } else if (state === 'practiceEnd') {
       drawPracticeEndScreen_Exp2();
+
     } else if (state === 'break') {
       drawBreakScreen();
+
     } else if (state === 'ISI') {
       if (elapsed >= isiDuration) {
         state = 'fixation';
         trialStartTime = nowMs();
       }
+
     } else if (state === 'fixation') {
-      drawEllipse('white');
+      // nur Fixationskreuz (500 ms)
       drawFixation();
       if (elapsed >= fixationDuration) {
+        state = 'ellipsePrime';
+        trialStartTime = nowMs();
+      }
+
+    } else if (state === 'ellipsePrime') {
+      // 500 ms weiße Ellipse + Fixation, noch kein Pfeil
+      drawEllipse('white');
+      drawFixation();
+      if (elapsed >= preEllipseDuration) {
         state = 'stimulus';
         trialStartTime = nowMs();
         currentTrialSSD = ssd;
-      }
-    } else if (state === 'stimulus') {
-      let stimSide   = currentTrial.direction;                 
-      let arrowPoint = stimSide;                               
-      if (currentTrial.type === 'incongruent_go') {
-        arrowPoint = (stimSide === 'left') ? 'right' : 'left'; 
+        stopPresented = false;
+        ellipseShouldBeBlue = false;
       }
 
-     
-      ellipseShouldBeBlue = (currentTrial.type === 'nogo')
-        ? true
-        : (currentTrial.type === 'stop' && !stopPresented && elapsed >= ssd)
-          ? (stopPresented = true, true)
-          : ellipseShouldBeBlue;
+    } else if (state === 'stimulus') {
+      // Stimulus: max 2000 ms oder bis Tastendruck
+      let stimSide   = currentTrial.direction;                  // Position
+      let arrowPoint = (currentTrial.type === 'incongruent_go') // Richtung
+        ? (stimSide === 'left' ? 'right' : 'left')
+        : stimSide;
+
+      // NoGo sofort blau, Stop nach SSD
+      if (currentTrial.type === 'nogo') {
+        ellipseShouldBeBlue = true;
+      } else if (currentTrial.type === 'stop' && !stopPresented && elapsed >= ssd) {
+        ellipseShouldBeBlue = true;
+        stopPresented = true;
+      }
 
       const arrowDisplayOffset = arrowOffset * (stimSide === 'left' ? -1 : 1);
 
       drawEllipse(ellipseShouldBeBlue ? 'blue' : 'white');
       drawFixation();
+      // Pfeil wird in allen Stimulus-Typen gezeigt (auch NoGo), wie von dir gewünscht
       drawArrow(arrowSymbol[arrowPoint], arrowDisplayOffset);
 
       if (nowMs() < showErrorUntil) drawErrorMark();
 
       if (elapsed >= stimulusDuration && !responded) {
-        handleResponse(stimSide, arrowPoint); 
+        handleResponse(stimSide, arrowPoint);
         state = 'interTrial';
         trialStartTime = nowMs();
       }
+
     } else if (state === 'interTrial') {
       if (nowMs() < showErrorUntil) drawErrorMark();
 
@@ -347,6 +360,7 @@
           ellipseShouldBeBlue = false;
         }
       }
+
     } else if (state === 'end') {
       drawEndScreen();
     }
@@ -356,7 +370,9 @@
     background(0);
     textSize(18);
     textAlign(CENTER, CENTER);
-    const textLines = `Experiment 2\n\nDrücken Sie eine beliebige Taste, um zu starten.`;
+    const textLines = `Experiment 2
+
+Drücken Sie eine beliebige Taste, um zu starten.`;
     text(textLines, width / 2, height / 2);
   }
   function drawPracticeEndScreen_Exp2() {
@@ -392,8 +408,9 @@ Drücken Sie eine beliebige Taste, um zu beginnen.`;
     background(0);
     textSize(18);
     textAlign(CENTER, CENTER);
-    const textLines = `Vielen Dank für Ihre Teilnahme an dieser Studie!\n\n 
-    Wenden Sie sich nun an die Versuchsleitung.`;
+    const textLines = `Vielen Dank für Ihre Teilnahme an dieser Studie!
+
+Wenden Sie sich nun an die Versuchsleitung.`;
     text(textLines, width / 2, height / 2);
     if (!csvSaved) { csvSaved = true; setTimeout(downloadCSV, 0); }
     if (!exp2Cleaned) { exp2Cleaned = true; unlockExp2UI(); }
@@ -444,7 +461,7 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
   function handleResponse(stimSideArg, arrowPointArg) {
     if (!currentTrial) return;
 
-   
+    // adaptives SSD nur für Stop-Trials
     if (currentTrial.type === 'stop') {
       if (responded) ssd = Math.max(minSSD, ssd - ssdStep);
       else           ssd = Math.min(maxSSD, ssd + ssdStep);
@@ -484,7 +501,6 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
       ? nowMs() + (practiceMode ? PRACTICE_FEEDBACK_MS : MAIN_FEEDBACK_MS)
       : 0;
 
-   
     if (currentSet > 0) {
       const stimSideLogged   = currentTrial.direction;
       const arrowPointLogged = expectedKey;
@@ -493,8 +509,8 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
         set: currentSet,
         trial: setTrialIndex + 1,
         type: currentTrial.type,
-        stimSide: stimSideLogged,                 
-        arrowPoint: arrowPointLogged,            
+        stimSide: stimSideLogged,
+        arrowPoint: arrowPointLogged,
         pressedKey: pressedKey,
         responded: responded,
         correct: !!correct,
@@ -513,7 +529,6 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
     let lines = [];
     lines.push(`#${experimentDateStr};${experimentStartTimeStr};${totalMs != null ? totalMs : ""}`);
 
-    
     lines.push("recordId;Set;Trial;Type;StimSide;ArrowPoint;PressedKey;Responded;Correct;RT_ms;SSD;EllipseColor");
 
     fullData.forEach(d => {
@@ -552,7 +567,3 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
   window.draw = draw;
   window.keyPressed = keyPressed;
 })();
-
-
-
-
