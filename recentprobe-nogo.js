@@ -281,7 +281,7 @@ function showPracticeEndScreen_Exp1() {
   setStimulusTextSize(UI_TEXT_PX);
   stimulusDiv.innerHTML = `Der Übunbgsblock ist beendet.<br><br>
       <strong>Jetzt startet der erste richtige Durchgang von Experiment 1.</strong><br><br>
-      Zur Erinnerung: Ihre Aufgabe ist es zu entscheiden, ob der einzelne Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
+      Zur Erinnerung: Ihre Aufgabe ist es, zu entscheiden, ob der einzelne Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
    Wenn ja, drücken Sie die rechte Pfeiltaste (→)<br>
    Wenn nein, drücken Sie die linke Pfeiltaste (←)<br>
    Drücken Sie keine Taste, wenn ein "X" erscheint.<br><br>
@@ -551,5 +551,6 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
