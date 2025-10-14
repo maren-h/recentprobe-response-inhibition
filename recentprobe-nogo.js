@@ -99,18 +99,6 @@ const practiceTrials = 20;
 let inPractice = true;
 const usedPracticeSets = new Set();
 
-function enterFullscreen() {
-  const el = document.documentElement;
-  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
-  if (req) {
-    try {
-      req.call(el, { navigationUI: "hide" }); // Option, die Navigationsleiste zu verstecken (bei mobilen Geräten hilfreich)
-    } catch (e) {
-      req.call(el);
-    }
-  }
-}
-
 function setStimulusTextSize(px) {
   stimulusDiv.style.fontSize = px + "px";
   stimulusDiv.style.lineHeight = "1";
@@ -503,7 +491,6 @@ function downloadCSV() {
 }
 
 function showWelcomeScreen() {
-  enterFullscreen();
   setStimulusTextSize(UI_TEXT_PX);
   stimulusDiv.innerHTML = `Hallo! Vielen Dank für die Teilnahme an dieser Studie. <br><br>
       Sie werden zwei verschiedene Experimente bearbeiten. <br><br>
@@ -563,6 +550,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
