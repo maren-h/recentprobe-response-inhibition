@@ -200,7 +200,6 @@
     }
   }
 
-  // --- EXAKTE Anzahlen pro Set: 41/9/9/9 ---
   function generateTrials() {
     const n_congruent   = 41;
     const n_incongruent = 9;
@@ -211,7 +210,7 @@
 
     function addTrials(type, count) {
       for (let i = 0; i < count; i++) {
-        let direction = random(['left', 'right']); // Bildschirmseite
+        let direction = random(['left', 'right']); 
         trialList.push({ type, direction });
       }
     }
@@ -286,7 +285,6 @@
       }
 
     } else if (state === 'ellipsePrime') {
-      // 500 ms weiße Ellipse + Fixation, noch kein Pfeil
       drawEllipse('white');
       drawFixation();
       if (elapsed >= preEllipseDuration) {
@@ -298,13 +296,12 @@
       }
 
     } else if (state === 'stimulus') {
-      // Stimulus: max 2000 ms oder bis Tastendruck
-      let stimSide   = currentTrial.direction;                  // Position
-      let arrowPoint = (currentTrial.type === 'incongruent_go') // Richtung
+      let stimSide   = currentTrial.direction;                  
+      let arrowPoint = (currentTrial.type === 'incongruent_go') 
         ? (stimSide === 'left' ? 'right' : 'left')
         : stimSide;
 
-      // NoGo sofort blau, Stop nach SSD
+      
       if (currentTrial.type === 'nogo') {
         ellipseShouldBeBlue = true;
       } else if (currentTrial.type === 'stop' && !stopPresented && elapsed >= ssd) {
@@ -316,7 +313,6 @@
 
       drawEllipse(ellipseShouldBeBlue ? 'blue' : 'white');
       drawFixation();
-      // Pfeil wird in allen Stimulus-Typen gezeigt (auch NoGo), wie von dir gewünscht
       drawArrow(arrowSymbol[arrowPoint], arrowDisplayOffset);
 
       if (nowMs() < showErrorUntil) drawErrorMark();
@@ -402,7 +398,7 @@ Zur Erinnerung: Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der P
 Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
 Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.
 
-Drücken Sie eine beliebige Taste, um zu beginnen.`;
+Drücken Sie eine beliebige Taste, um weiter zu machen.`;
     text(textLines, width / 2, height / 2);
   }
   function drawEndScreen() {
@@ -568,4 +564,5 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
   window.draw = draw;
   window.keyPressed = keyPressed;
 })();
+
 
