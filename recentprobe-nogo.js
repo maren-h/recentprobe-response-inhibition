@@ -511,15 +511,18 @@ function showWelcomeScreen() {
   
   
   document.addEventListener("keydown", function welcomeHandler() {
-    document.removeEventListener("keydown", welcomeHandler);
-    enterFullscreen();  
+    document.removeEventListener("keydown", welcomeHandler);  
     showInstructions(); 
   });
 }
 
 function welcomeHandler() {
+  document.addEventListener("keydown", function welcomeHandler() {
   document.removeEventListener("keydown", welcomeHandler);
+
+  enterFullscreen();  
   showInstructions();
+});
 }
 
 function showInstructions() {
@@ -567,5 +570,6 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
