@@ -509,20 +509,14 @@ function showWelcomeScreen() {
       Vor dem jeweils ersten Testblock gibt es einen kurzen Übungsblock, um sich an die Aufgabe zu gewöhnen.<br><br>
       <em>Drücken Sie eine beliebige Taste, um mit den Instruktionen für Experiment 1 fortzufahren.</em>`;
   
-  
   document.addEventListener("keydown", function welcomeHandler() {
+    // Remove the listener to avoid multiple triggers
     document.removeEventListener("keydown", welcomeHandler);  
-    showInstructions(); 
+    
+    enterFullscreen();  
+    
+    showInstructions();
   });
-}
-
-function welcomeHandler() {
-  document.addEventListener("keydown", function welcomeHandler() {
-  document.removeEventListener("keydown", welcomeHandler);
-
-  enterFullscreen();  
-  showInstructions();
-});
 }
 
 function showInstructions() {
@@ -570,6 +564,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
