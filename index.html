@@ -10,12 +10,11 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;  
-      width: 100%;  
-      overflow: hidden; 
-      background-color: rgb(220, 220, 220); 
+      height: 100%;  /* Full height */
+      width: 100%;   /* Full width */
+      overflow: hidden;
+      background-color: rgb(220, 220, 220); /* Gray background */
     }
-
 
     body {
       display: flex;
@@ -70,24 +69,44 @@
       const el = document.documentElement;
       const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
       if (req) {
-        try {
-          req.call(el, { navigationUI: "hide" }); 
-        } catch (e) {
-          req.call(el);
-        }
+        req.call(el);  
+      } else {
+        console.error("Fullscreen not supported");
       }
     }
 
-    window.onload = function() {
+    document.addEventListener("keydown", function() {
       enterFullscreen();
+    });
+
+    document.getElementById("download-btn").addEventListener("click", function() {
+      enterFullscreen();
+    });
+
+    
+    function showWelcomeScreen() {
+      setStimulusTextSize(UI_TEXT_PX);
+      stimulusDiv.innerHTML = `Hallo! Vielen Dank für die Teilnahme an dieser Studie. <br><br>
+          Sie werden zwei verschiedene Experimente bearbeiten. <br><br>
+          Jedes Experiment umfasst drei Testblöcke. Nach jedem Block können Sie eine kurze Pause machen.<br><br>
+          Vor dem jeweils ersten Testblock gibt es einen kurzen Übungsblock, um sich an die Aufgabe zu gewöhnen.<br><br>
+          <em>Drücken Sie eine beliebige Taste, um mit den Instruktionen für Experiment 1 fortzufahren.</em>`;
+      document.addEventListener("keydown", welcomeHandler);
     }
+
+    function welcomeHandler() {
+      document.removeEventListener("keydown", welcomeHandler);
+      showInstructions();
+    }
+
+    function showInstructions() {
+      setStimulusTextSize(UI_TEXT_PX);
+      stimulusDiv.innerHTML = instructionPages[currentInstructionPage];
+      document.addEventListener("keydown", instructionPageHandler);
+    }
+
+
+    showWelcomeScreen();
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
