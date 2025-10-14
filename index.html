@@ -10,22 +10,22 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100vh;
-      overflow: hidden;
+      height: 100%;  
+      width: 100%;  
+      overflow: hidden; 
+      background-color: rgb(220, 220, 220); 
     }
 
-    body {
-      background-color: rgb(220,220,220);
-      color: black;
-      font-family: Arial, sans-serif;
-      text-align: center;
 
+    body {
       display: flex;
       justify-content: center;
       align-items: center;
+      text-align: center;
+      color: black;
+      font-family: Arial, sans-serif;
     }
 
-    
     #stimulus {
       white-space: pre;
       position: fixed;
@@ -33,7 +33,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       user-select: none;
-      font-size: 48px;   
+      font-size: 48px;
       line-height: 1;
       z-index: 10;
     }
@@ -49,7 +49,6 @@
       z-index: 2;
     }
 
-  
     canvas {
       position: fixed;
       inset: 0;
@@ -66,24 +65,25 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <script src="response-inhibition-task.js?v=8"></script>
   
+  <script>
+    function enterFullscreen() {
+      const el = document.documentElement;
+      const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+      if (req) {
+        try {
+          req.call(el, { navigationUI: "hide" }); 
+        } catch (e) {
+          req.call(el);
+        }
+      }
+    }
+
+    window.onload = function() {
+      enterFullscreen();
+    }
+  </script>
 </body>
 </html>
-
-
-    
- 
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
