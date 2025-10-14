@@ -502,14 +502,19 @@ function downloadCSV() {
 }
 
 function showWelcomeScreen() {
-  enterFullscreen();
   setStimulusTextSize(UI_TEXT_PX);
   stimulusDiv.innerHTML = `Hallo! Vielen Dank für die Teilnahme an dieser Studie. <br><br>
       Sie werden zwei verschiedene Experimente bearbeiten. <br><br>
       Jedes Experiment umfasst drei Testblöcke. Nach jedem Block können Sie eine kurze Pause machen.<br><br>
       Vor dem jeweils ersten Testblock gibt es einen kurzen Übungsblock, um sich an die Aufgabe zu gewöhnen.<br><br>
       <em>Drücken Sie eine beliebige Taste, um mit den Instruktionen für Experiment 1 fortzufahren.</em>`;
-  document.addEventListener("keydown", welcomeHandler);
+  
+  
+  document.addEventListener("keydown", function welcomeHandler() {
+    document.removeEventListener("keydown", welcomeHandler);
+    enterFullscreen();  
+    showInstructions(); 
+  });
 }
 
 function welcomeHandler() {
@@ -562,4 +567,5 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
