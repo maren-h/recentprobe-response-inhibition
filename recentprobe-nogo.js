@@ -185,8 +185,8 @@ function displayProbe(probe) {
       stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
         <div style="margin-top:10px; font-size:16px; color:black;">
           Zur Erinnerung:<br>
-          einzelner Buchstabe kam auch bei den sechs Buchstaben vor: → rechte Pfeiltaste <br>
-          einzelner Buchstabe kam nicht bei den sechs Buchstaben vor: ← linke Pfeiltaste <br>
+          einzelner Buchstabe war Teil der sechs Buchstaben: → rechte Pfeiltaste <br>
+          einzelner Buchstabe war nicht Teil der sechs Buchstaben: ← linke Pfeiltaste <br>
           „X“ erscheint: keine Taste drücken
         </div>`;
       setTimeout(nextTrial, 6000);
@@ -227,8 +227,8 @@ function displayProbe(probe) {
         stimulusDiv.innerHTML = `${probe}<br><span style="color:red">!</span><br>
           <div style="margin-top:10px; font-size:16px; color:black;">
             Zur Erinnerung:<br>
-            einzelner Buchstabe kam auch bei den sechs Buchstaben vor: → rechte Pfeiltaste <br>
-            einzelner Buchstabe kam nicht bei den sechs Buchstaben vor: ← linke Pfeiltaste <br>
+             einzelner Buchstabe war Teil der sechs Buchstaben: → rechte Pfeiltaste <br>
+             einzelner Buchstabe war nicht Teil der sechs Buchstaben: ← linke Pfeiltaste <br>
             „X“ erscheint: keine Taste drücken
           </div>`;
         setTimeout(nextTrial, 6000);
@@ -292,7 +292,7 @@ function showPracticeEndScreen_Exp1() {
   setStimulusTextSize(UI_TEXT_PX);
   stimulusDiv.innerHTML = `Der Übunbgsblock ist beendet.<br><br>
       <strong>Jetzt startet der erste richtige Durchgang von Experiment 1.</strong><br><br>
-      Zur Erinnerung: Ihre Aufgabe ist es zu entscheiden, ob der einzelne Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
+      Zur Erinnerung: Ihre Aufgabe ist es, zu entscheiden, ob der einzelne Buchstabe Teil der vorherigen sechs Buchstaben war:<br><br>
    Wenn ja, drücken Sie die rechte Pfeiltaste (→)<br>
    Wenn nein, drücken Sie die linke Pfeiltaste (←)<br>
    Drücken Sie keine Taste, wenn ein "X" erscheint.<br><br>
@@ -564,6 +564,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
