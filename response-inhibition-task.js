@@ -94,6 +94,20 @@
   let responded = false;
   let stopPresented = false;
 
+  // Global fallback for key events if canvas loses focus
+  window.addEventListener('keydown', (e) => {
+    if (state !== 'stimulus' || responded) return;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      responded = true;
+      lastKeyCode = (e.key === 'ArrowLeft') ? LEFT_ARROW : RIGHT_ARROW;
+      responseTimestampMs = nowMs();
+      handleResponse();
+      state = 'interTrial';
+      trialStartTime = nowMs();
+    }
+  }, { passive: false });
+
   let isiDuration = 0;
   const fixationDuration   = 0.5; // 500 ms Fixation
   const preEllipseDuration = 0.5; // 500 ms weiße Ellipse + Fixation (kein Pfeil)
@@ -170,6 +184,10 @@
     c.elt.style.inset    = '0';
     c.elt.style.zIndex   = '2';
 
+    // Make canvas focusable and focus it
+    c.elt.setAttribute('tabindex', '0');
+    setTimeout(() => c.elt.focus(), 0);
+
     textAlign(LEFT, TOP);
     textWrap(WORD);
     textLeading(30);
@@ -200,6 +218,7 @@
     }
   }
 
+  // --- EXAKTE Anzahlen pro Set: 41/9/9/9 ---
   function generateTrials() {
     const n_congruent   = 41;
     const n_incongruent = 9;
@@ -210,7 +229,7 @@
 
     function addTrials(type, count) {
       for (let i = 0; i < count; i++) {
-        let direction = random(['left', 'right']); 
+        let direction = random(['left', 'right']); // Bildschirmseite
         trialList.push({ type, direction });
       }
     }
@@ -224,6 +243,17 @@
   }
 
   function startSet() {
+    // Ensure focus on the canvas
+    const __canvasEl = document.querySelector('canvas');
+    if (__canvasEl) __canvasEl.focus();
+
+    // Fallback initialization of experiment start time/date if missing
+    if (experimentStartMs == null || !experimentDateStr || !experimentStartTimeStr) {
+      const __start = new Date();
+      experimentStartMs = __start.getTime();
+      experimentDateStr = fmtDate(__start);
+      experimentStartTimeStr = fmtTime(__start);
+    }
     if (practiceMode) {
       const full = generateTrials();
       trialList = full.slice(0, practiceTrials);
@@ -285,6 +315,7 @@
       }
 
     } else if (state === 'ellipsePrime') {
+      // 500 ms weiße Ellipse + Fixation, noch kein Pfeil
       drawEllipse('white');
       drawFixation();
       if (elapsed >= preEllipseDuration) {
@@ -296,12 +327,13 @@
       }
 
     } else if (state === 'stimulus') {
-      let stimSide   = currentTrial.direction;                  
-      let arrowPoint = (currentTrial.type === 'incongruent_go') 
+      // Stimulus: max 2000 ms oder bis Tastendruck
+      let stimSide   = currentTrial.direction;                  // Position
+      let arrowPoint = (currentTrial.type === 'incongruent_go') // Richtung
         ? (stimSide === 'left' ? 'right' : 'left')
         : stimSide;
 
-      
+      // NoGo sofort blau, Stop nach SSD
       if (currentTrial.type === 'nogo') {
         ellipseShouldBeBlue = true;
       } else if (currentTrial.type === 'stop' && !stopPresented && elapsed >= ssd) {
@@ -313,6 +345,7 @@
 
       drawEllipse(ellipseShouldBeBlue ? 'blue' : 'white');
       drawFixation();
+      // Pfeil wird in allen Stimulus-Typen gezeigt (auch NoGo), wie von dir gewünscht
       drawArrow(arrowSymbol[arrowPoint], arrowDisplayOffset);
 
       if (nowMs() < showErrorUntil) drawErrorMark();
@@ -398,7 +431,7 @@ Zur Erinnerung: Reagieren Sie mit den Pfeiltasten auf die Richtung, in die der P
 Drücken Sie keine Taste, wenn die Ellipse in Blau erscheint.
 Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint und dann zu Blau wechselt.
 
-Drücken Sie eine beliebige Taste, um weiter zu machen.`;
+Drücken Sie eine beliebige Taste, um zu beginnen.`;
     text(textLines, width / 2, height / 2);
   }
   function drawEndScreen() {
@@ -524,6 +557,13 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
     const totalMs = experimentStartMs ? (experimentEndMs - experimentStartMs) : null;
 
     let lines = [];
+    // Final safeguard: ensure start date/time are set
+    if (experimentStartMs == null || !experimentDateStr || !experimentStartTimeStr) {
+      const __start2 = new Date();
+      experimentStartMs = __start2.getTime();
+      experimentDateStr = fmtDate(__start2);
+      experimentStartTimeStr = fmtTime(__start2);
+    }
     lines.push(`#${experimentDateStr};${experimentStartTimeStr};${totalMs != null ? totalMs : ""}`);
 
     lines.push("recordId;Set;Trial;Type;StimSide;ArrowPoint;PressedKey;Responded;Correct;RT_ms;SSD;EllipseColor");
@@ -564,5 +604,16 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
   window.draw = draw;
   window.keyPressed = keyPressed;
 })();
+
+
+
+
+
+
+
+
+
+
+
 
 
