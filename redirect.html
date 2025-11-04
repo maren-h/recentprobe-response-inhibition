@@ -5,9 +5,9 @@
   <title>Weiterleitung...</title>
   <script>
     window.onload = function () {
-      const expURL = "https://maren-h.github.io/recentprobe-response-inhibition/?REDCapID=[record_id]"; 
-      window.open(expURL, "_blank");  
-     
+      const query = window.location.search;
+      const expURL = "https://maren-h.github.io/recentprobe-response-inhibition/" + query;
+      window.open(expURL, "_blank");
       setTimeout(() => window.close(), 1000);
     };
   </script>
