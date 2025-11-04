@@ -1,17 +1,25 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Weiterleitung...</title>
+  <meta charset="UTF-8" />
+  <title>Weiterleitung…</title>
   <script>
     window.onload = function () {
-      const query = window.location.search;
+      const query  = window.location.search;
       const expURL = "https://maren-h.github.io/recentprobe-response-inhibition/" + query;
-      window.open(expURL, "_blank");
-      setTimeout(() => window.close(), 1000);
+
+      // 1) Versuch: neues Tab 
+      const win = window.open(expURL, "_blank", "noopener");
+      if (win && !win.closed) {
+        // Erfolgreich: diese Seite leise schließen
+        setTimeout(() => window.close(), 500);
+      } else {
+        // 2) Fallback: gleiche-Tab-Weiterleitung 
+        window.location.replace(expURL);
+      }
     };
   </script>
 </head>
-<body style="background-color:black;">
-</body>
+<body></body>
 </html>
+
