@@ -580,11 +580,10 @@ function secondInstructionPageHandler() {
     if (!startExp2WhenReady()) {
       const s = document.createElement('script');
       s.src = 'response-inhibition-task.js?v=8';
-      s.onload = () => {
-        if (!startExp2WhenReady()) {
-          alert('Experiment 2 konnte nicht gestartet werden (startSecondExperiment nicht gefunden).');
-        }
-      };
+     s.onload = () => {
+  if (window.startSecondExperiment) window.startSecondExperiment(); 
+  if (!window.__exp2P5Started) { window.__exp2P5Started = true; new p5(); } 
+};
       s.onerror = () => {
         alert('Fehler beim Laden von Experiment 2 (response-inhibition-task.js).');
       };
@@ -592,6 +591,7 @@ function secondInstructionPageHandler() {
     }
   }
 }
+
 
 
 
