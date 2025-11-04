@@ -94,7 +94,6 @@
   let responded = false;
   let stopPresented = false;
 
-  // Global fallback for key events if canvas loses focus
   window.addEventListener('keydown', (e) => {
     if (state !== 'stimulus' || responded) return;
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
@@ -109,9 +108,9 @@
   }, { passive: false });
 
   let isiDuration = 0;
-  const fixationDuration   = 0.5; // 500 ms Fixation
-  const preEllipseDuration = 0.5; // 500 ms weiße Ellipse + Fixation (kein Pfeil)
-  const stimulusDuration   = 2.0; // 2000 ms max. (oder bis Tastendruck)
+  const fixationDuration   = 0.5; 
+  const preEllipseDuration = 0.5; 
+  const stimulusDuration   = 2.0; 
   let ellipseShouldBeBlue = false;
 
   let exp2HasStarted = false;
@@ -184,9 +183,15 @@
     c.elt.style.inset    = '0';
     c.elt.style.zIndex   = '2';
 
-    // Make canvas focusable and focus it
     c.elt.setAttribute('tabindex', '0');
     setTimeout(() => c.elt.focus(), 0);
+
+    c.elt.style.outline = 'none';
+    c.elt.style.border = '0';
+
+    const style = document.createElement('style');
+    style.textContent = `canvas:focus { outline: none !important; }`;
+    document.head.appendChild(style);
 
     textAlign(LEFT, TOP);
     textWrap(WORD);
@@ -217,8 +222,7 @@
       trialStartTime = nowMs();
     }
   }
-
-  // --- EXAKTE Anzahlen pro Set: 41/9/9/9 ---
+  
   function generateTrials() {
     const n_congruent   = 41;
     const n_incongruent = 9;
@@ -247,7 +251,7 @@
     const __canvasEl = document.querySelector('canvas');
     if (__canvasEl) __canvasEl.focus();
 
-    // Fallback initialization of experiment start time/date if missing
+    
     if (experimentStartMs == null || !experimentDateStr || !experimentStartTimeStr) {
       const __start = new Date();
       experimentStartMs = __start.getTime();
@@ -307,7 +311,6 @@
       }
 
     } else if (state === 'fixation') {
-      // nur Fixationskreuz (500 ms)
       drawFixation();
       if (elapsed >= fixationDuration) {
         state = 'ellipsePrime';
@@ -315,7 +318,6 @@
       }
 
     } else if (state === 'ellipsePrime') {
-      // 500 ms weiße Ellipse + Fixation, noch kein Pfeil
       drawEllipse('white');
       drawFixation();
       if (elapsed >= preEllipseDuration) {
@@ -327,13 +329,11 @@
       }
 
     } else if (state === 'stimulus') {
-      // Stimulus: max 2000 ms oder bis Tastendruck
-      let stimSide   = currentTrial.direction;                  // Position
-      let arrowPoint = (currentTrial.type === 'incongruent_go') // Richtung
+      let stimSide   = currentTrial.direction;                  
+      let arrowPoint = (currentTrial.type === 'incongruent_go') 
         ? (stimSide === 'left' ? 'right' : 'left')
         : stimSide;
 
-      // NoGo sofort blau, Stop nach SSD
       if (currentTrial.type === 'nogo') {
         ellipseShouldBeBlue = true;
       } else if (currentTrial.type === 'stop' && !stopPresented && elapsed >= ssd) {
@@ -345,7 +345,6 @@
 
       drawEllipse(ellipseShouldBeBlue ? 'blue' : 'white');
       drawFixation();
-      // Pfeil wird in allen Stimulus-Typen gezeigt (auch NoGo), wie von dir gewünscht
       drawArrow(arrowSymbol[arrowPoint], arrowDisplayOffset);
 
       if (nowMs() < showErrorUntil) drawErrorMark();
@@ -604,6 +603,7 @@ Drücken Sie auch dann keine Taste, wenn die Ellipse zuerst in Weiß erscheint u
   window.draw = draw;
   window.keyPressed = keyPressed;
 })();
+
 
 
 
