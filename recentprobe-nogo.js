@@ -568,9 +568,27 @@ function secondInstructionPageHandler() {
   } else {
     currentSecondInstructionPage = 0;
     stimulusDiv.style.display = "none";
-    startSecondExperiment();
-  }
+   (function loadAndStartExp2() {
+    if (window.startSecondExperiment) {
+      window.startSecondExperiment();
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = 'response-inhibition-task.js?v=8';
+    s.onload = () => {
+      if (window.startSecondExperiment) {
+        window.startSecondExperiment();
+      } else {
+        alert('Experiment 2 konnte nicht gestartet werden (startSecondExperiment nicht gefunden).');
+      }
+    };
+    s.onerror = () => {
+      alert('Fehler beim Laden von Experiment 2 (response-inhibition-task.js).');
+    };
+    document.body.appendChild(s);
+  })();
 }
+
 
 
 
