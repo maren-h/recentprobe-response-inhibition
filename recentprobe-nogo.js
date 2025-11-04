@@ -461,12 +461,19 @@ function runTrial() {
 
 function endExperiment() {
   setStimulusTextSize(UI_TEXT_PX);
-  stimulusDiv.innerHTML = "Experiment 1 ist nun beendet! <br><br> Sie können nun eine kurze Pause machen, bevor Sie mit Experiment 2 beginnen. <br><br> Wenn Sie bereit sind, drücken Sie eine beliebige Taste, um mit den Instruktionen für Experiment 2 zu beginnen.";
+  stimulusDiv.innerHTML = `
+    Experiment 1 ist nun beendet! <br><br>
+    Sie können nun eine kurze Pause machen, bevor Sie mit Experiment 2 beginnen. <br><br>
+    Wenn Sie bereit sind, drücken Sie eine beliebige Taste, um mit den Instruktionen für Experiment 2 zu beginnen.
+  `;
+
   downloadCSV();
-  document.addEventListener("keydown", function secondExpIntroHandler() {
-    document.removeEventListener("keydown", secondExpIntroHandler);
+  function waitForNextExpStartHandler() {
+    document.removeEventListener("keydown", waitForNextExpStartHandler);
     startSecondExperimentInstructions();
-  });
+  }
+
+  document.addEventListener("keydown", waitForNextExpStartHandler);
 }
 
 function downloadCSV() {
@@ -564,6 +571,7 @@ function secondInstructionPageHandler() {
     startSecondExperiment();
   }
 }
+
 
 
 
